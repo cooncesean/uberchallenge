@@ -152,60 +152,7 @@
       //     }
       //   });
 
-      //   // Utility to remove all markers from the map
-      //   function removeMarkers() {
-      //     while(markers.length){
-      //       markers.pop().setMap(null);
-      //     }
-      //   }
 
-      //   // Utility to create a new marker on the map
-      //   function createMarker(map, lat, lng, title){
-      //     marker = new google.maps.Marker({
-      //       map: map,
-      //       position: new google.maps.LatLng(lat, lng),
-      //       title:  title,
-      //       clickable: true
-      //     });
-
-      //     // Append the marker to the `markers` list
-      //     markers.push(marker);
-
-      //     // Attach mouse events to each marker binding it to an info window
-      //     var infowindow = new google.maps.InfoWindow({content: ''});
-      //     bindInfoWindow(marker, map, infowindow, '<p>'+title+'</p>', title);
-      //     function bindInfoWindow(marker, map, infowindow, html, title) {
-      //       google.maps.event.addListener(marker, 'mouseover', function() {
-      //         infowindow.setContent(html);
-      //         infowindow.open(map, marker);
-      //       });
-      //       google.maps.event.addListener(marker, 'mouseout', function() {
-      //         infowindow.close();
-      //       });
-      //     }
-      //   }
-
-      //   // Google Maps initialization
-      //   function initialize() {
-      //     var mapOptions = {
-      //       center: new google.maps.LatLng(37.7533, -122.4173),
-      //       zoom: 11,
-      //       mapTypeId: google.maps.MapTypeId.ROADMAP
-      //     };
-      //     map = new google.maps.Map(
-      //       document.getElementById("map-canvas"),
-      //       mapOptions
-      //     );
-      //     var infowindow = new google.maps.InfoWindow();
-
-      //     // Create the initial markers
-      //     {% for movie in movies %}
-      //       {% for lat_long in movie.geolocation %}
-      //         createMarker(map, {{ lat_long.lat }}, {{ lat_long.lng }}, "{{ movie.title }}");
-      //       {% endfor %}
-      //     {% endfor %}
-      //   }
-      //   google.maps.event.addDomListener(window, 'load', initialize);
       // });
     </script>
   </body>

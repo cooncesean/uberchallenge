@@ -145,8 +145,15 @@ $(function(){
           infowindow.close();
         });
       }
-
     },
+
+    // Remove all existing markers from the map. Using Google's v3 API,
+    // this appears to be the only way to handle this.
+    deleteMarkers: function(map){
+      while(markers.length){
+        markers.pop().setMap(null);
+      }
+    }
 
   });
 
