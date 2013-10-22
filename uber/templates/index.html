@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <link href="{{ url_for('static', filename='css/uber.css') }}" rel="stylesheet">
+    <title>SF Cine</title>
+  </head>
+  <body>
+
+    {# Map container #}
+    <div id="map-canvas"></div>
+  </body>
+
+  <script src="//maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAP_API_KEY }}&sensor=false" type="text/javascript" ></script>
+
+  {# Google Maps Initialization #}
+  <script type="text/javascript">
+    function initialize() {
+      var mapOptions = {
+        center: new google.maps.LatLng(37.7833, -122.4167),
+        zoom: 12,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+      };
+      var map = new google.maps.Map(document.getElementById("map-canvas"),
+          mapOptions);
+    }
+    google.maps.event.addDomListener(window, 'load', initialize);
+  </script>
+</html>
