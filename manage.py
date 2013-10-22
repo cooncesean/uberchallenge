@@ -38,8 +38,9 @@ def bootstrap():
 @manager.command
 def run_tests():
     " Run the test suite. "
-    from uber.tests import TestModels
+    from uber.tests import TestModels, TestViews
     suite = unittest.TestLoader().loadTestsFromTestCase(TestModels)
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestViews))
     unittest.TextTestRunner(verbosity=2).run(suite)
 
 if __name__ == "__main__":
