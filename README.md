@@ -39,6 +39,8 @@ I have zero Backbone.js experience and I actually [ventured down this path](http
 # TODO
 The app itself is (hopefully) straightforward to use, but it doesn't really do a whole lot. Given more time, I would have like to completed the "search history" UI and refactored the [`Movie`](https://github.com/cooncesean/uberchallenge/blob/master/uber/models.py#L3) model to couple the `address` and `geolocation` fields more tightly.
 
+Oh, and I would obviously also like to serve my static files from s3; I haven't found a great way to accomplish that yet with Beanstalk + Flask but its on my radar.
+
 
 # My Overall Experience
 I felt like I spent the first hour and half going down a few rabbit holes (whether it was trying to grok the SF Data API, wrapping my head around the Google Maps API, or figuring out if I could actually pull off a Backbone solution) before I settled in on a UI and narrowed the scope of the project. Once I got in the groove and made a bit of progress, things started to flow.
