@@ -3,38 +3,38 @@
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <title>Fog City Flicks</title>
-    <link href="{{ url_for('static', filename='css/uber.css') }}" rel="stylesheet">
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/uber.css') }}" rel="stylesheet">
   </head>
 
   <body>
     {# Main DOM Elements ############}
     <div id="container">
+      {# Left side content #}
       <div id="sidebar">
         <h3>Refine These Results</h3>
         <section class='sidebar-input'>
           <div class="ui-widget">
             <label for="movie-title">Movie Title: </label><br/>
-            <input type='text' id='movie-title' placeholder='Filter By Title' />
+            <input type='text' id='movie-title' placeholder='Filter By Title' class='form-control' />
           </div>
         </section>
         <section class='sidebar-input'>
           <label id='selected-movie-title'></label><br/>
           <div id='selected-movie-info'></div>
         </section>
-        {#
-        <section class='sidebar-input'>
-          Filter By Year:
-          <select id='movie-year-filter' placeholder='Filter By Title'>
-            <option value='1999'>Later Than 1999</option>
-            <option value='1999'>Later Than 2000</option>
-          </select>
-        </section>
-        #}
       </div>
+      {# Right side content (map) #}
       <div id="content">
         <div id="map-canvas"></div>
       </div>
+      {# Footer #}
+      <nav class="navbar navbar-default navbar-fixed-bottom navbar-inverse" role="navigation">
+        <div class="navbar-header">
+          <h1><i class='icon-movie4'></i> Fog City Flicks</h1>
+        </div>
+        <p class="navbar-text pull-right love">Made with love and caffeine by <a href="https://github.com/cooncesean/uberchallenge" class="navbar-link">Sean Coonce</a></p>
+      </nav>
     </div>
 
     {# JS Includes ##################}
@@ -74,7 +74,7 @@
             type: "get",
             success: function (data) {
               response($.map(data['movies'], function(item) {
-                return { label: item.title };
+                return {label: item.title};
               }));
             }
           });
@@ -85,7 +85,10 @@
           minLength: 2,
           source: formatSource,
           select: function(event, ui) {
+            // Mark the movie's location on the map
             updateMarkers(ui.item);
+
+            //
           }
         });
 
