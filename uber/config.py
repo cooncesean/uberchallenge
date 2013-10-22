@@ -20,7 +20,7 @@ class Production(Config):
         'db': '%s' % PROJECT_NAME,
         'username': 'uber',
         'password': 'KvzLK8JPn6tsye',
-        'host': 'mongodb:/uber:KvzLK8JPn6tsye@paulo.mongohq.com:10095/uber',
+        'host': 'mongodb://uber:KvzLK8JPn6tsye@paulo.mongohq.com:10095/uber',
         'port': 10095
     }
 
