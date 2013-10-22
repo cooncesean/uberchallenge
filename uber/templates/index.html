@@ -31,6 +31,12 @@
       </div>
       {# Footer #}
       <nav class="navbar navbar-default navbar-fixed-bottom navbar-inverse" role="navigation">
+        <section id='history-container'>
+          <b>History:</b>
+          <ul id='history'>
+          </ul>
+        </section>
+
         <div class="navbar-header">
           <h1><i class='icon-movie4'></i> Fog City Flicks</h1>
         </div>
@@ -49,38 +55,52 @@
     <script>
       $(function() {
         var markers = [];   // Array to manage all map markers
-        var history = [];   // Array to manage selected movie history
+        var history = {};   // Dict to manage selected movie history
         var map = null;
 
+        // Update the app with fresh movie data (either from history or from async req)
+        function updateAppWithMovieData(data){
+
+          // Flush all markers from the map and add new markers for the selected movie
+          removeMarkers();
+          $.each(data, function(i, movie){
+            $.each(movie.geolocation, function(x, location){
+              createMarker(map, location.lat, location.lng, movie.title);
+            });
+          });
+
+          // Update the `movie info` divs with the selection
+          $('#selected-movie-title').html(data.movie.title);
+          $('#selected-movie-title').css('background: #ccc;')
+          address_string = 'No addresses available.'
+          if(data.movie.addresses.length > 0){
+            address_string = '<ul class="addresses"><li>' + data.movie.addresses.join('</li><li>') + '</li></ul>'
+          }
+          $('#selected-movie-info').html(address_string);
+
+          // Add the movie object to the `history` dictionary
+          if (data.movie.title in history)
+            return;
+          history[data.movie.title] = data;
+
+          // Add an element to the history ul (if it doens't already exist)
+          $('#history').children('li').children('a')
+          var history_li = $('<li><a>'+data.movie.title+'</a></li>');
+          history_li.click(function(e, element){
+            updateAppWithMovieData(history[data.movie.title]);
+          });
+
+          $('#history').append(history_li);
+        }
+
         // Update the map markers based on the movie selected in the autocompleter
-        function updateMarkers(item){
+        function processAutoCompleteSelection(item){
           // Make an aynsc request to fetch the specific movie
           $.ajax({
             url: "{{ url_for ('movies') }}" + encodeURIComponent(item.value),
             dataType: "json",
             type: "get",
-            success: function (data) {
-              // Flush all markers from the map and add new markers
-              removeMarkers();
-              $.each(data, function(i, movie){
-                $.each(movie.geolocation, function(x, location){
-                  createMarker(map, location.lat, location.lng, movie.title);
-                });
-              });
-
-              // Update the `movie info` divs with the selection
-              $('#selected-movie-title').html(data.movie.title);
-              $('#selected-movie-title').css('background: #ccc;')
-              address_string = 'No addresses available.'
-              if(data.movie.addresses.length > 0){
-                address_string = '<ul class="addresses"><li>' + data.movie.addresses.join('</li><li>') + '</li></ul>'
-              }
-              $('#selected-movie-info').html(address_string);
-
-              // Add the movie object to the `history` array
-              history.push(data);
-              console.log(history)
-            }
+            success: updateAppWithMovieData
           });
         }
 
@@ -103,8 +123,8 @@
           minLength: 2,
           source: formatSource,
           select: function(event, ui) {
-            // Mark the movie's location on the map
-            updateMarkers(ui.item);
+            // Process a successful choice from the autocompleter
+            processAutoCompleteSelection(ui.item);
           }
         });
 

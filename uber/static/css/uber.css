@@ -80,7 +80,24 @@ nav .love{
 .pull-right{
     text-align: right;
 }
-
+#history-container{
+    border-bottom:1px solid #ccc;
+    color: #999;
+}
+ul#history{
+    list-style: none;
+    padding:0px;
+    margin:0px;
+    display: inline;
+}
+ul#history li{
+    display: inline !important;
+    margin-right: 10px;
+}
+ul#history li a{
+    cursor: pointer;
+    text-decoration: underline;
+}
 
 @font-face {
     font-family: 'icomoon';
