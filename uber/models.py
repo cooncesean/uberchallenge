@@ -15,13 +15,6 @@ class Movie(db.Document):
     def __unicode__(self):
         return self.title
 
-    @property
-    def format_info(self):
-        " Return a info about the movie formatted for the `infoWindow()` on the map."
-        return "<p>%(title)s</p>" % {
-            'title': self.title
-        }
-
     def serialize(self):
         " Return a serialized version of the object. "
         return {

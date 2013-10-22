@@ -11,7 +11,7 @@
     {# Main DOM Elements ############}
     <div id="container">
       <div id="sidebar">
-        <strong>Refine These Results</strong>
+        <h3>Refine These Results</h3>
         <section class='sidebar-input'>
           <div class="ui-widget">
             <label for="movie-title">Movie Title: </label><br/>
@@ -19,12 +19,18 @@
           </div>
         </section>
         <section class='sidebar-input'>
+          <label id='selected-movie-title'></label><br/>
+          <div id='selected-movie-info'></div>
+        </section>
+        {#
+        <section class='sidebar-input'>
           Filter By Year:
           <select id='movie-year-filter' placeholder='Filter By Title'>
             <option value='1999'>Later Than 1999</option>
             <option value='1999'>Later Than 2000</option>
           </select>
         </section>
+        #}
       </div>
       <div id="content">
         <div id="map-canvas"></div>
@@ -119,7 +125,7 @@
         function initialize() {
           var mapOptions = {
             center: new google.maps.LatLng(37.7533, -122.4173),
-            zoom: 12,
+            zoom: 11,
             mapTypeId: google.maps.MapTypeId.ROADMAP
           };
           map = new google.maps.Map(

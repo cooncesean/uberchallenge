@@ -31,3 +31,23 @@ body{
     padding: 10px 0px;
     margin: 10px 0px;
 }
+#movie-title{
+    width: 100%;
+}
+.ui-helper-hidden-accessible{
+    display: none;
+}
+ul#ui-id-1{
+    padding: 0px;
+    margin: 3px;
+    width: 270px;
+    background: rgb(240, 248, 255);
+}
+ul#ui-id-1 li{
+    display: block;
+    cursor: pointer;
+    padding: 10px 0px;
+}
+a.ui-state-focus{
+    font-weight:bold;
+}
