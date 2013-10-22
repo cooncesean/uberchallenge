@@ -3,3 +3,4 @@ flask-environments
 flask-script
 mongoengine
 flask_mongoengine
+raven[flask]
