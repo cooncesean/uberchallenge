@@ -8,13 +8,14 @@
   </head>
 
   <body>
+    {# Main DOM Elements ############}
     <div id="container">
       <div id="sidebar">
         <strong>Refine These Results</strong>
-        <section style='width:100%; border-top:1px solid #ccc;padding: 10px 0px;margin: 10px 0px;'>
+        <section class='sidebar-input'>
           Filter By Title: <input type='text' id='movie-title-filter' placeholder='Filter By Title' />
         </section>
-        <section style='width:100%; border-top:1px solid #ccc;padding: 10px 0px;margin: 10px 0px;'>
+        <section class='sidebar-input'>
           Filter By Year:
           <select id='movie-year-filter' placeholder='Filter By Title'>
             <option value='1999'>Later Than 1999</option>
@@ -27,9 +28,13 @@
       </div>
     </div>
 
+    {# JS Includes ##################}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js" type="text/javascript"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js" type="text/javascript"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
     <script src="//maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAP_API_KEY }}&sensor=false" type="text/javascript" ></script>
 
-    {# Google Maps Initialization #}
+    {# Google Maps Initialization ###}
     <script type="text/javascript">
       function initialize() {
         var mapOptions = {
@@ -70,6 +75,44 @@
         {% endfor %}
       }
       google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+
+    <script>
+
+      var Movies = Backbone.Collection.extend({
+        url: "/foo/"
+      });
+
+      var MovieFilter = Backbone.View.extend({
+        el: '#filter-results',
+        render: function () {
+          // var that = this;
+          // var movies = new Movies();
+          alert('hi')
+          // movies.fetch({
+          //   success: function (movies) {
+          //     // var template = _.template($('#user-list-template').html(), {users: users.models});
+          //     // that.$el.html(template);
+          //     console.log('hello')
+          //   }
+          // });
+        }
+      });
+
+      var Router = Backbone.Router.extend({
+        routes: {
+          '': 'home'
+        }
+      });
+
+      var movieFilterView = new MovieFilter();
+
+      var router = new Router();
+      router.on('route:home', function(){
+        movieFilterView.render();
+      });
+
+
     </script>
   </body>
 </html>
