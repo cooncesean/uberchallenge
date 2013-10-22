@@ -63,6 +63,20 @@ nav.navbar{
 nav .love{
     margin-top: 30px;
 }
+.addresses li{
+    margin:0px;
+    padding:0px;
+    border-top: 1px dotted #ccc;
+}
+.addresses{
+    margin:0px;
+    padding:0px;
+}
+#selected-movie-title{
+    padding: 3px 0px;
+    font-size: 15px;
+    width: 100%;
+}
 
 
 @font-face {

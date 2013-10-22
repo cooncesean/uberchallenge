@@ -62,6 +62,15 @@
                   createMarker(map, location.lat, location.lng, movie.title);
                 });
               });
+
+              // Update the `movie info` divs with the selection
+              $('#selected-movie-title').html(data.movie.title);
+              $('#selected-movie-title').css('background: #ccc;')
+              address_string = 'No addresses available.'
+              if(data.movie.addresses.length > 0){
+                address_string = '<ul class="addresses"><li>' + data.movie.addresses.join('</li><li>') + '</li></ul>'
+              }
+              $('#selected-movie-info').html(address_string);
             }
           });
         }
@@ -87,8 +96,6 @@
           select: function(event, ui) {
             // Mark the movie's location on the map
             updateMarkers(ui.item);
-
-            //
           }
         });
 
