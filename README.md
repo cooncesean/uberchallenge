@@ -39,7 +39,7 @@ I have zero Backbone.js experience and I actually [ventured down this path](http
 # TODO
 
 ### Refactor
-The app itself is (hopefully) straightforward to use, but it doesn't really do a whole lot. Given more time, I would have like to completed the "search history" UI and refactored the [`Movie`](https://github.com/cooncesean/uberchallenge/blob/master/uber/models.py#L3) model to couple the `address` and `geolocation` fields more tightly.
+The app itself is (hopefully) straightforward to use, but it doesn't really do a whole lot. Given more time, I would have like to ~~completed the "search history" UI~~ ([done here](https://github.com/cooncesean/uberchallenge/commit/7f3a3ab20c06913367753d74bae762d118ad8847)) and refactored the [`Movie`](https://github.com/cooncesean/uberchallenge/blob/master/uber/models.py#L3) model to couple the `address` and `geolocation` fields more tightly.
 
 ### Static Files
 I would also like to serve my static files from s3; I haven't found a great way to accomplish that yet with Beanstalk + Flask but its on my radar.
