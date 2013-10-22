@@ -8,6 +8,7 @@ Usage:
     # Run the `bootstrap` command using the `Test` config
     > python manage.py bootstrap -e TEST
 """
+import unittest
 from flask.ext.script import Manager, Server
 from uber import create_application
 
@@ -33,6 +34,13 @@ def bootstrap():
     # Flush the database and load data
     flush_database()
     generate_dev_data()
+
+@manager.command
+def run_tests():
+    " Run the test suite. "
+    from uber.tests import TestModels
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestModels)
+    unittest.TextTestRunner(verbosity=2).run(suite)
 
 if __name__ == "__main__":
     manager.run()

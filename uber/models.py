@@ -19,14 +19,15 @@ class Movie(db.Document):
         " Return a serialized version of the object. "
         return {
             'title': self.title,
-            'addy_plus_geo': self._build_add_plus_geo(),
+            'addy_plus_geo': self._build_addy_plus_geo(),
             'geolocation': self.geolocation,
             'addresses': self.addresses
         }
 
-    def _build_add_plus_geo(self):
+    def _build_addy_plus_geo(self):
         " Return these values munged together. "
         try:
-            return [(m.addresses[idx], val) for idx, val in enumerate(self.geolocation)]
+            return [(self.addresses[idx], val) for idx, val in enumerate(self.geolocation)]
         except:
-            return [(None, val) for val in self.geolocation]
+            pass
+        return [(None, val) for val in self.geolocation]
