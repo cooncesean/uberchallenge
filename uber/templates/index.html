@@ -33,7 +33,10 @@
         <div class="navbar-header">
           <h1><i class='icon-movie4'></i> Fog City Flicks</h1>
         </div>
-        <p class="navbar-text pull-right love">Made with love and caffeine by <a href="https://github.com/cooncesean/uberchallenge" class="navbar-link">Sean Coonce</a></p>
+        <p class="navbar-text pull-right love">
+          Built with Flask, jQuery and caffeine by <a href="https://github.com/cooncesean/uberchallenge" class="navbar-link">Sean Coonce</a>.<br />
+          To use, simply interact with the map or search for movies using the autocompleter to the left.
+        </p>
       </nav>
     </div>
 
@@ -45,6 +48,7 @@
     <script>
       $(function() {
         var markers = [];   // Array to manage all map markers
+        var history = [];   // Array to manage selected movie history
         var map = null;
 
         // Update the map markers based on the movie selected in the autocompleter
@@ -71,11 +75,15 @@
                 address_string = '<ul class="addresses"><li>' + data.movie.addresses.join('</li><li>') + '</li></ul>'
               }
               $('#selected-movie-info').html(address_string);
+
+              // Add the movie object to the `history` array
+              history.push(data);
+              console.log(history)
             }
           });
         }
 
-        // Async request to fetch and format the `source`
+        // Async request to fetch and format the `source` for the autocompleter
         function formatSource(request, response) {
           $.ajax({
             url: "{{ url_for ('movies') }}?term=" + encodeURIComponent(request.term),
@@ -115,12 +123,13 @@
             clickable: true
           });
 
+          // Append the marker to the `markers` list
           markers.push(marker);
 
           // Attach mouse events to each marker binding it to an info window
           var infowindow = new google.maps.InfoWindow({content: ''});
           bindInfoWindow(marker, map, infowindow, '<p>'+title+'</p>', title);
-          function bindInfoWindow(marker, map, infowindow, html, Ltitle) {
+          function bindInfoWindow(marker, map, infowindow, html, title) {
             google.maps.event.addListener(marker, 'mouseover', function() {
               infowindow.setContent(html);
               infowindow.open(map, marker);
@@ -147,9 +156,7 @@
           // Create the initial markers
           {% for movie in movies %}
             {% for lat_long in movie.geolocation %}
-
               createMarker(map, {{ lat_long.lat }}, {{ lat_long.lng }}, "{{ movie.title }}");
-
             {% endfor %}
           {% endfor %}
         }
