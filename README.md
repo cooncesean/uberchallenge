@@ -37,9 +37,15 @@ I have zero Backbone.js experience and I actually [ventured down this path](http
 
 
 # TODO
+
+### Refactor
 The app itself is (hopefully) straightforward to use, but it doesn't really do a whole lot. Given more time, I would have like to completed the "search history" UI and refactored the [`Movie`](https://github.com/cooncesean/uberchallenge/blob/master/uber/models.py#L3) model to couple the `address` and `geolocation` fields more tightly.
 
-Oh, and I would obviously also like to serve my static files from s3; I haven't found a great way to accomplish that yet with Beanstalk + Flask but its on my radar.
+### Static Files
+I would also like to serve my static files from s3; I haven't found a great way to accomplish that yet with Beanstalk + Flask but its on my radar.
+
+### Periodic Tasks To Fetch API Listings
+The movie data from the API is loaded via the [`uber.utils.generate_dev_data()`](https://github.com/cooncesean/uberchallenge/blob/master/uber/utils.py#L7) function. This logic should be either run as a cron job or a periodic task to fetch fresh data.
 
 
 # My Overall Experience
