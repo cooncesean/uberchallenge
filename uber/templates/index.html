@@ -13,7 +13,10 @@
       <div id="sidebar">
         <strong>Refine These Results</strong>
         <section class='sidebar-input'>
-          Filter By Title: <input type='text' id='movie-title-filter' placeholder='Filter By Title' />
+          <div class="ui-widget">
+            <label for="movie-title">Movie Title: </label><br/>
+            <input type='text' id='movie-title' placeholder='Filter By Title' />
+          </div>
         </section>
         <section class='sidebar-input'>
           Filter By Year:
@@ -30,51 +33,112 @@
 
     {# JS Includes ##################}
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js" type="text/javascript"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js" type="text/javascript"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js" type="text/javascript"></script>
     <script src="//maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAP_API_KEY }}&sensor=false" type="text/javascript" ></script>
 
-    {# Google Maps Initialization ###}
-    <script type="text/javascript">
-      function initialize() {
-        var mapOptions = {
-          center: new google.maps.LatLng(37.7533, -122.4173),
-          zoom: 12,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-        var map = new google.maps.Map(
-          document.getElementById("map-canvas"),
-          mapOptions
-        );
-        var infowindow = new google.maps.InfoWindow();
+    <script>
+      $(function() {
+        var markers = [];   // Array to manage all map markers
+        var map = null;
 
-        // Create the initial markers
-        {% for movie in movies %}
-          {% for lat_long in movie.geolocation %}
-            marker = new google.maps.Marker({
-              map: map,
-              position: new google.maps.LatLng({{ lat_long.lat }}, {{ lat_long.lng }}),
-              title:  "{{ movie.title }}",
-              clickable: true
-            });
-
-            // Attach click events to each marker binding it to an info window
-            var infowindow = new google.maps.InfoWindow({content: ''});
-            bindInfoWindow(marker, map, infowindow, "{{ movie.format_info|safe }}", '{{ movie.title }}' );
-            function bindInfoWindow(marker, map, infowindow, html, Ltitle) {
-              google.maps.event.addListener(marker, 'mouseover', function() {
-                infowindow.setContent(html);
-                infowindow.open(map, marker);
-              });
-              google.maps.event.addListener(marker, 'mouseout', function() {
-                infowindow.close();
+        // Update the map markers based on the movie selected in the autocompleter
+        function updateMarkers(item){
+          // Make an aynsc request to fetch the specific movie
+          $.ajax({
+            url: "{{ url_for ('movies') }}" + encodeURIComponent(item.value),
+            dataType: "json",
+            type: "get",
+            success: function (data) {
+              // Flush all markers from the map and add new markers
+              removeMarkers();
+              $.each(data, function(i, movie){
+                $.each(movie.geolocation, function(x, location){
+                  createMarker(map, location.lat, location.lng, movie.title);
+                });
               });
             }
+          });
+        }
 
+        // Async request to fetch and format the `source`
+        function formatSource(request, response) {
+          $.ajax({
+            url: "{{ url_for ('movies') }}?term=" + encodeURIComponent(request.term),
+            dataType: "json",
+            type: "get",
+            success: function (data) {
+              response($.map(data['movies'], function(item) {
+                return { label: item.title };
+              }));
+            }
+          });
+        }
+
+        // Bind the autocompleter to the `movie-title` input
+        $("#movie-title").autocomplete({
+          minLength: 2,
+          source: formatSource,
+          select: function(event, ui) {
+            updateMarkers(ui.item);
+          }
+        });
+
+        // Utility to remove all markers from the map
+        function removeMarkers() {
+          while(markers.length){
+            markers.pop().setMap(null);
+          }
+        }
+
+        // Utility to create a new marker on the map
+        function createMarker(map, lat, lng, title){
+          marker = new google.maps.Marker({
+            map: map,
+            position: new google.maps.LatLng(lat, lng),
+            title:  title,
+            clickable: true
+          });
+
+          markers.push(marker);
+
+          // Attach mouse events to each marker binding it to an info window
+          var infowindow = new google.maps.InfoWindow({content: ''});
+          bindInfoWindow(marker, map, infowindow, '<p>'+title+'</p>', title);
+          function bindInfoWindow(marker, map, infowindow, html, Ltitle) {
+            google.maps.event.addListener(marker, 'mouseover', function() {
+              infowindow.setContent(html);
+              infowindow.open(map, marker);
+            });
+            google.maps.event.addListener(marker, 'mouseout', function() {
+              infowindow.close();
+            });
+          }
+        }
+
+        // Google Maps initialization
+        function initialize() {
+          var mapOptions = {
+            center: new google.maps.LatLng(37.7533, -122.4173),
+            zoom: 12,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+          };
+          map = new google.maps.Map(
+            document.getElementById("map-canvas"),
+            mapOptions
+          );
+          var infowindow = new google.maps.InfoWindow();
+
+          // Create the initial markers
+          {% for movie in movies %}
+            {% for lat_long in movie.geolocation %}
+
+              createMarker(map, {{ lat_long.lat }}, {{ lat_long.lng }}, "{{ movie.title }}");
+
+            {% endfor %}
           {% endfor %}
-        {% endfor %}
-      }
-      google.maps.event.addDomListener(window, 'load', initialize);
+        }
+        google.maps.event.addDomListener(window, 'load', initialize);
+      });
     </script>
   </body>
 </html>
