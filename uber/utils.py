@@ -4,6 +4,7 @@ import urllib
 import urllib2
 from uber import db, application, models
 
+
 def generate_dev_data():
     " Generates a handful of dev data to bootstrap the site. "
     SF_DATA_API_BASE_URL = application.config.get('SF_DATA_API_BASE_URL')

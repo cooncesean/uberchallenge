@@ -5,6 +5,7 @@ use of the `application` var instead of `app`.
 """
 import uber
 
+
 application = uber.create_application('PRODUCTION')
 
 if __name__ == '__main__':

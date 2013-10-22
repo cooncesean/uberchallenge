@@ -12,6 +12,7 @@ import unittest
 from flask.ext.script import Manager, Server
 from uber import create_application
 
+
 # Create the application w/ the specified environment
 manager = Manager(create_application)
 manager.add_option('-e', '--env', dest='default_env', required=False)
