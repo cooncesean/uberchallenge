@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, make_response, jsonify
 from uber import application
 from uber.models import Movie
 
@@ -12,3 +12,13 @@ def index():
         'movies': Movie.objects.all(),
     }
     return render_template('index.html', **context)
+
+@application.route('/api/movies.json', methods=['GET'])
+def movies():
+    " Provide a RESTful api for the Movie model. "
+    return jsonify({'movies': [m.serialize() for m in Movie.objects.all()]})
+
+@application.errorhandler(404)
+def not_found(error):
+    " API error handling. "
+    return make_response(jsonify( { 'error': 'Not found' } ), 404)

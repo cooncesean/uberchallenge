@@ -21,3 +21,11 @@ class Movie(db.Document):
         return "<p>%(title)s</p>" % {
             'title': self.title
         }
+
+    def serialize(self):
+        " Return a serialized version of the object. "
+        return {
+            'title': self.title,
+            'geolocation': self.geolocation,
+            'addresses': self.addresses
+        }

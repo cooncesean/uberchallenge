@@ -76,43 +76,5 @@
       }
       google.maps.event.addDomListener(window, 'load', initialize);
     </script>
-
-    <script>
-
-      var Movies = Backbone.Collection.extend({
-        url: "/foo/"
-      });
-
-      var MovieFilter = Backbone.View.extend({
-        el: '#filter-results',
-        render: function () {
-          // var that = this;
-          // var movies = new Movies();
-          alert('hi')
-          // movies.fetch({
-          //   success: function (movies) {
-          //     // var template = _.template($('#user-list-template').html(), {users: users.models});
-          //     // that.$el.html(template);
-          //     console.log('hello')
-          //   }
-          // });
-        }
-      });
-
-      var Router = Backbone.Router.extend({
-        routes: {
-          '': 'home'
-        }
-      });
-
-      var movieFilterView = new MovieFilter();
-
-      var router = new Router();
-      router.on('route:home', function(){
-        movieFilterView.render();
-      });
-
-
-    </script>
   </body>
 </html>
