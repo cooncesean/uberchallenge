@@ -22,5 +22,17 @@ manager.add_command("runserver", Server(
     host = '0.0.0.0')
 )
 
+@manager.command
+def bootstrap():
+    """
+    Flush the data store and load a fresh set of data; return
+    the site a sane default start state.
+    """
+    from uber.utils import flush_database, generate_dev_data
+
+    # Flush the database and load data
+    flush_database()
+    generate_dev_data()
+
 if __name__ == "__main__":
     manager.run()

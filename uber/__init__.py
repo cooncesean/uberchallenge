@@ -1,4 +1,5 @@
 env = None
+db = None
 application = None
 
 def create_application(default_env='DEVELOPMENT'):
@@ -9,14 +10,19 @@ def create_application(default_env='DEVELOPMENT'):
     """
     from flask import Flask
     from flask_environments import Environments
+    from flask.ext.mongoengine import MongoEngine
 
     global application
     global env
+    global db
 
     # Instatiate the app and the environment
     application = Flask(__name__)
     env = Environments(application, default_env=default_env)
     env.from_object('uber.config')
+
+    # Instantiate the mongo connection
+    db = MongoEngine(application)
 
     # Import and route all views
     from uber.views import *

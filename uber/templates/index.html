@@ -23,12 +23,20 @@
     <script type="text/javascript">
       function initialize() {
         var mapOptions = {
-          center: new google.maps.LatLng(37.7833, -122.4167),
+          center: new google.maps.LatLng(37.7533, -122.4173),
           zoom: 12,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
-        var map = new google.maps.Map(document.getElementById("map-canvas"),
-            mapOptions);
+        var map = new google.maps.Map(
+          document.getElementById("map-canvas"),
+          mapOptions
+        );
+        // marker = new google.maps.Marker({
+        //   map: map,
+        //   position: "1090 Point Lobos Avenue, San Francisco, CA" ,
+        //   title:  "Some title",
+        // });
+        //
       }
       google.maps.event.addDomListener(window, 'load', initialize);
     </script>
