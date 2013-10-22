@@ -31,12 +31,18 @@
           document.getElementById("map-canvas"),
           mapOptions
         );
-        // marker = new google.maps.Marker({
-        //   map: map,
-        //   position: "1090 Point Lobos Avenue, San Francisco, CA" ,
-        //   title:  "Some title",
-        // });
-        //
+
+        // Create the initial markers
+        {% for movie in movies %}
+          {% for lat_long in movie.geolocation %}
+            marker = new google.maps.Marker({
+              map: map,
+              position: new google.maps.LatLng({{ lat_long.lat }}, {{ lat_long.lng }}),
+              title:  "{{ movie.title }}",
+            });
+          {% endfor %}
+        {% endfor %}
+
       }
       google.maps.event.addDomListener(window, 'load', initialize);
     </script>

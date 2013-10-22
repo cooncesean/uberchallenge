@@ -6,7 +6,6 @@ from uber import db, application, models
 
 def generate_dev_data():
     " Generates a handful of dev data to bootstrap the site. "
-    print 'Fetching Film Data From API....'
     SF_DATA_API_BASE_URL = application.config.get('SF_DATA_API_BASE_URL')
     GOOGLE_MAPS_GEOCODE_URL = application.config.get('GOOGLE_MAPS_GEOCODE_URL')
 
@@ -14,7 +13,7 @@ def generate_dev_data():
     # in its db.
     encoded_args = urllib.urlencode({'$select':'title, locations'})
     sf_url = '%s?%s' % (SF_DATA_API_BASE_URL, encoded_args)
-    print sf_url
+    print 'Fetching Film Data: %s...' % sf_url
     response = urllib2.urlopen(sf_url)
     movie_records = json.load(response)
 
