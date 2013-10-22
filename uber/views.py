@@ -1,6 +1,7 @@
 from flask import render_template, make_response, jsonify, request
 from uber import application
-from uber.models import Movie
+from uber.models import Movie, SearchHistory
+
 
 @application.route('/')
 def index():
@@ -22,7 +23,15 @@ def movies():
 @application.route('/api/movies/<string:movie_title>/', methods=['GET'])
 def movie(movie_title):
     " Provide a RESTful end point for a specific Movie. "
+    # Fetch the selected movie
     movie = Movie.objects.get_or_404(title=movie_title)
+
+    # Update the user's Searchhistory
+    sessionid = request.cookies.get('sessionid')
+    sh, _ = SearchHistory.objects.get_or_create(sessionid=sessionid)
+    sh.movies.append(movie)
+    sh.save()
+
     return jsonify({'movie': movie.serialize()})
 
 @application.errorhandler(404)

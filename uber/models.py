@@ -31,3 +31,8 @@ class Movie(db.Document):
         except:
             pass
         return [(None, val) for val in self.geolocation]
+
+class SearchHistory(db.Document):
+    " Allows us to track each user's search history. "
+    sessionid = db.StringField(unique=True)
+    movies = db.EmbeddedDocumentField('Movie')
