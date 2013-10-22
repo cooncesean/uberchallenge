@@ -31,6 +31,7 @@
           document.getElementById("map-canvas"),
           mapOptions
         );
+        var infowindow = new google.maps.InfoWindow();
 
         // Create the initial markers
         {% for movie in movies %}
@@ -39,10 +40,24 @@
               map: map,
               position: new google.maps.LatLng({{ lat_long.lat }}, {{ lat_long.lng }}),
               title:  "{{ movie.title }}",
+              clickable: true
             });
+
+            // Attach click events to each marker binding it to an info window
+            var infowindow = new google.maps.InfoWindow({content: ''});
+            bindInfoWindow(marker, map, infowindow, "{{ movie.format_info|safe }}", '{{ movie.title }}' );
+            function bindInfoWindow(marker, map, infowindow, html, Ltitle) {
+              google.maps.event.addListener(marker, 'mouseover', function() {
+                infowindow.setContent(html);
+                infowindow.open(map, marker);
+              });
+              google.maps.event.addListener(marker, 'mouseout', function() {
+                infowindow.close();
+              });
+            }
+
           {% endfor %}
         {% endfor %}
-
       }
       google.maps.event.addDomListener(window, 'load', initialize);
     </script>
