@@ -98,5 +98,14 @@ class TestViews(UberChallengeTestCase):
         data = json.loads(response.get_data())
         self.assertEquals(movie.title, data['movie']['title'])
 
+    def test_invalid_movie_endpoint(self):
+        " Test a request to a 'movie' that does not exist. "
+        response = self.app.open(url_for('movie', movie_title='Foo'))
+
+        # Assert we found the movie we were looking for
+        self.assertEquals(response.status_code, 404)
+        data = json.loads(response.get_data())
+        self.assertEquals(data, {'error': 'Not found'})
+
 if __name__ == '__main__':
     unittest.main()
