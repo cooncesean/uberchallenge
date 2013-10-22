@@ -1,5 +1,6 @@
 from uber import db
 
+
 class Movie(db.Document):
     """
     A normalized movie object. We are going to store the

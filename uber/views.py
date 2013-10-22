@@ -2,6 +2,7 @@ from flask import render_template, make_response, jsonify, request
 from uber import application
 from uber.models import Movie
 
+
 @application.route('/')
 def index():
     " Renders the defaualt page for the app. "

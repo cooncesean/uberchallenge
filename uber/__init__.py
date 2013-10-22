@@ -2,6 +2,7 @@ env = None
 db = None
 application = None
 
+
 def create_application(default_env='DEVELOPMENT'):
     """
     Util method to create a fully configured `Flask app` for
@@ -32,6 +33,6 @@ def create_application(default_env='DEVELOPMENT'):
     )
 
     # Import and route all views
-    from uber.views import *
+    from uber.views import index, movies, movie, not_found
 
     return application
