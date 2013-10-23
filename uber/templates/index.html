@@ -22,8 +22,6 @@
             {# Autocompletion input #}
             <input type='text' id='autocomplete-input' placeholder='Filter By Title' class='form-control' />
 
-            {# Autocompleted results will be appended to this list #}
-            <ul id='autocomplete-result-container' class='dn'></ul>
           </div>
         </section>
 
@@ -56,8 +54,6 @@
         </p>
       </nav>
     </div>
-
-
 
     {# JS Includes ##################}
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js" type="text/javascript"></script>
@@ -106,93 +102,8 @@
         });
         allMovies.add(movie);
       {% endfor %}
-
-      // $(function() {
-      //   var markers = [];   // Array to manage all map markers
-      //   var history = {};   // Dict to manage selected movie history
-      //   var map = null;
-
-      //   // Update the app with fresh movie data (either from history or from async req)
-      //   function updateAppWithMovieData(data){
-
-      //     // Flush all markers from the map and add new markers for the selected movie
-      //     removeMarkers();
-      //     $.each(data, function(i, movie){
-      //       $.each(movie.geolocation, function(x, location){
-      //         createMarker(map, location.lat, location.lng, movie.title);
-      //       });
-      //     });
-
-      //     // Update the `movie info` divs with the selection
-      //     $('#selected-movie-title').html(data.movie.title);
-      //     $('#selected-movie-title').css('background: #ccc;')
-      //     address_string = 'No addresses available.'
-      //     if(data.movie.addresses.length > 0){
-      //       address_string = '<ul class="addresses"><li>' + data.movie.addresses.join('</li><li>') + '</li></ul>'
-      //     }
-      //     $('#selected-movie-info').html(address_string);
-
-      //     // Add the movie object to the `history` dictionary
-      //     if (data.movie.title in history)
-      //       return;
-      //     history[data.movie.title] = data;
-
-      //     // Add an element to the history ul (if it doens't already exist)
-      //     $('#history').children('li').children('a')
-      //     var history_li = $('<li><a>'+data.movie.title+'</a></li>');
-      //     history_li.click(function(e, element){
-      //       updateAppWithMovieData(history[data.movie.title]);
-      //     });
-
-      //     $('#history').append(history_li);
-      //   }
-
-      //   // Update the map markers based on the movie selected in the autocompleter
-      //   function processAutoCompleteSelection(item){
-      //     // Make an aynsc request to fetch the specific movie
-      //     $.ajax({
-      //       url: "{{ url_for ('movies') }}" + encodeURIComponent(item.value),
-      //       dataType: "json",
-      //       type: "get",
-      //       success: updateAppWithMovieData
-      //     });
-      //   }
-
-      //   // Async request to fetch and format the `source` for the autocompleter
-      //   function formatSource(request, response) {
-      //     $.ajax({
-      //       url: "{{ url_for ('movies') }}?term=" + encodeURIComponent(request.term),
-      //       dataType: "json",
-      //       type: "get",
-      //       success: function (data) {
-      //         response($.map(data['movies'], function(item) {
-      //           return {label: item.title};
-      //         }));
-      //       }
-      //     });
-      //   }
-
-      //   // Bind the autocompleter to the `movie-title` input
-      //   $("#movie-title").autocomplete({
-      //     minLength: 2,
-      //     source: formatSource,
-      //     select: function(event, ui) {
-      //       // Process a successful choice from the autocompleter
-      //       processAutoCompleteSelection(ui.item);
-      //     }
-      //   });
-
-
-      // });
     </script>
     <script src="{{ url_for('static', filename='js/uber-backbone.js') }}" type="text/javascript"></script>
-
-    <!-- Javascript Templates -->
-    <script type="text/template" id="autocomplete-result">
-      <a class='autocomplete-result'>
-        <%- title %>
-      </a>
-    </script>
 
   </body>
 </html>
