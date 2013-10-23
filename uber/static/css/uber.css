@@ -39,25 +39,29 @@ body{
 }
 
 /* Autocompleter and results */
-ul#autocomplete-result-container{
+.ui-helper-hidden-accessible{
+    display: none;
+}
+ul.ui-autocomplete{
     padding: 5px;
     margin: 0px;
-    background: rgba(200, 208, 200, .4);
+    width: 268px;
+    background: rgba(200, 208, 200, 1);
 }
-ul#autocomplete-result-container li{
+/*ul#autocomplete-result-container li a{
     display: block;
     cursor: pointer;
     padding: 10px 0px;
     border-bottom:1px solid #ccc;
     font-size: 12px;
+    width: 100%;
+    text-decoration: none;
 }
-ul#autocomplete-result-container li:hover{
+ul#autocomplete-result-container li a:hover{
     background: rgba(200, 208, 200, .7);
     font-weight: bold;
 }
-a.ui-state-focus{
-    font-weight:bold;
-}
+*/
 h3{
     margin-top: 5px;
 }

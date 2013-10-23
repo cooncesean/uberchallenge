@@ -61,7 +61,7 @@
 
     {# JS Includes ##################}
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js" type="text/javascript"></script>
-    {# <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js" type="text/javascript"></script> #}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js" type="text/javascript"></script>
     <script src="//maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAP_API_KEY }}&sensor=false" type="text/javascript" ></script>
@@ -69,37 +69,43 @@
 
     <script>
       // Bootstrap the default movie data
-      var MovieLocation = Backbone.Model.extend({
+      // Note: `addy_plus_geo` is a list of tuples like so:
+      //   [('901 Mission Street', {'lat': 37.76, 'lng': -122.42}), ....]
+      var Movie = Backbone.Model.extend({
         defaults: function(){
           return {
             title: "",
-            lat: 0,
-            lng: 0,
-            address: ""
+            location_count: 0,
+            addy_plus_geo: [],
           };
         }
       });
 
-      var MovieLocationList = Backbone.Collection.extend({
-        model: MovieLocation
+      var MovieList = Backbone.Collection.extend({
+        model: Movie
       });
-      var movieLocations = new MovieLocationList();
+      var allMovies = new MovieList();
 
       // Instantiate a new MovieLocation object for each movie and
       // add each to the movieLocations collection.
-      {% for movie in movies %}
-        {% for position_tuple in movie.serialize().addy_plus_geo %}
-          var movieLocation = new MovieLocation({
-            'title': '{{ movie.title }}',
-            'lat': {{ position_tuple.1.lat }},
-            'lng': {{ position_tuple.1.lng }},
-            'address': '{{ position_tuple.0 }}',
-          });
-          movieLocations.add(movieLocation);
-        {% endfor %}
+      {% for db_movie in movies %}
+        var movie = new Movie({
+          'title': '{{ db_movie.title }}',
+          'location_count': {{ db_movie.serialize().addy_plus_geo|count }},
+          'addy_plus_geo':[
+            {% for position_tuple in db_movie.serialize().addy_plus_geo %}
+              {
+                'address': '{{ position_tuple.0|escape }}',
+                'geo': {
+                  'lat': {{ position_tuple.1.lat }},
+                  'lng': {{ position_tuple.1.lng }},
+                }
+              },
+            {% endfor %}
+          ]
+        });
+        allMovies.add(movie);
       {% endfor %}
-
-      var urlMovies = "{{ url_for ('movies') }}";
 
       // $(function() {
       //   var markers = [];   // Array to manage all map markers
@@ -183,7 +189,9 @@
 
     <!-- Javascript Templates -->
     <script type="text/template" id="autocomplete-result">
-      <%- title %>
+      <a class='autocomplete-result'>
+        <%- title %>
+      </a>
     </script>
 
   </body>
