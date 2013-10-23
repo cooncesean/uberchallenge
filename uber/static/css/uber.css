@@ -6,6 +6,9 @@ body{
     margin: 0;
     padding: 0;
 }
+.dn{
+    display: none;
+}
 #sidebar, #content{
     position: absolute;
     top: 0;
@@ -34,19 +37,23 @@ body{
 #movie-title{
     width: 100%;
 }
-.ui-helper-hidden-accessible{
-    display: none;
+
+/* Autocompleter and results */
+ul#autocomplete-result-container{
+    padding: 5px;
+    margin: 0px;
+    background: rgba(200, 208, 200, .4);
 }
-ul#ui-id-1{
-    padding: 0px;
-    margin: 3px;
-    width: 270px;
-    background: rgb(240, 248, 255);
-}
-ul#ui-id-1 li{
+ul#autocomplete-result-container li{
     display: block;
     cursor: pointer;
     padding: 10px 0px;
+    border-bottom:1px solid #ccc;
+    font-size: 12px;
+}
+ul#autocomplete-result-container li:hover{
+    background: rgba(200, 208, 200, .7);
+    font-weight: bold;
 }
 a.ui-state-focus{
     font-weight:bold;
@@ -80,6 +87,7 @@ nav .love{
 .pull-right{
     text-align: right;
 }
+
 #history-container{
     border-bottom:1px solid #ccc;
     color: #999;

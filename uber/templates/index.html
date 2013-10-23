@@ -11,28 +11,34 @@
   <body>
     {# Main DOM Elements ############}
     <div id="container">
+
       {# Left side content #}
       <div id="sidebar">
         <h3>Refine These Results</h3>
         <section class='sidebar-input'>
           <div class="ui-widget">
             <label for="movie-title">Movie Title: </label><br/>
-            <input type='text' id='autocompleter' placeholder='Filter By Title' class='form-control' />
-            <ul id='autocompleter-results'>
-              <li><a>Faces of Death</a></li>
-              <li><a>Faces of Death</a></li>
-            </ul>
+
+            {# Autocompletion input #}
+            <input type='text' id='autocomplete-input' placeholder='Filter By Title' class='form-control' />
+
+            {# Autocompleted results will be appended to this list #}
+            <ul id='autocomplete-result-container' class='dn'></ul>
           </div>
         </section>
+
+        {# Information about the selected movie will be dynamically managed here #}
         <section class='sidebar-input'>
           <label id='selected-movie-title'></label><br/>
           <div id='selected-movie-info'></div>
         </section>
       </div>
+
       {# Right side content (map) #}
       <div id="content">
         <div id="map-canvas"></div>
       </div>
+
       {# Footer #}
       <nav class="navbar navbar-default navbar-fixed-bottom navbar-inverse" role="navigation">
         <section id='history-container'>
@@ -59,23 +65,40 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js" type="text/javascript"></script>
     <script src="//maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAP_API_KEY }}&sensor=false" type="text/javascript" ></script>
-    <script src="{{ url_for('static', filename='js/uber-backbone.js') }}" type="text/javascript"></script>
+
 
     <script>
       // Bootstrap the default movie data
-      var movieLocations = new Backbone.Collection;
-      movieLocations.reset([
-        {% for movie in movies %}
-          {% for position_tuple in movie.serialize().addy_plus_geo %}
-            {
-              'title': '{{ movie.title }}',
-              'lat': {{ position_tuple.1.lat }},
-              'lng': {{ position_tuple.1.lng }},
-              'address': '{{ position_tuple.0 }}',
-            },
-          {% endfor %}
+      var MovieLocation = Backbone.Model.extend({
+        defaults: function(){
+          return {
+            title: "",
+            lat: 0,
+            lng: 0,
+            address: ""
+          };
+        }
+      });
+
+      var MovieLocationList = Backbone.Collection.extend({
+        model: MovieLocation
+      });
+      var movieLocations = new MovieLocationList();
+
+      // Instantiate a new MovieLocation object for each movie and
+      // add each to the movieLocations collection.
+      {% for movie in movies %}
+        {% for position_tuple in movie.serialize().addy_plus_geo %}
+          var movieLocation = new MovieLocation({
+            'title': '{{ movie.title }}',
+            'lat': {{ position_tuple.1.lat }},
+            'lng': {{ position_tuple.1.lng }},
+            'address': '{{ position_tuple.0 }}',
+          });
+          movieLocations.add(movieLocation);
         {% endfor %}
-      ]);
+      {% endfor %}
+
       var urlMovies = "{{ url_for ('movies') }}";
 
       // $(function() {
@@ -156,5 +179,12 @@
 
       // });
     </script>
+    <script src="{{ url_for('static', filename='js/uber-backbone.js') }}" type="text/javascript"></script>
+
+    <!-- Javascript Templates -->
+    <script type="text/template" id="autocomplete-result">
+      <%- title %>
+    </script>
+
   </body>
 </html>

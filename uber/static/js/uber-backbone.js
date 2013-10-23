@@ -1,34 +1,97 @@
 $(function(){
+  // Note that the `MovieLocation` model and `movieLocations` collection
+  // are declared in `index.html` for bootstrapping purposes.
 
-  // MODELS
-  // A MovieLocation defines a lat/lng and a title for a specific
-  // scnene in a movie ..... HOW DOES THIS GET USED IF THE COLLECTION IS
-  // GETTING BOOTSTRAPPED OUTSIDE OF THIS FUNCTION?
-  var MovieLocation = Backbone.Model.extend({
-    defaults: function() {
+  // MODELS/COLLECTIONS ///////////////////////////////////////////////////////
+  var AutoCompleteResult = Backbone.Model.extend({
+    defaults: function(){
       return {
         title: "",
-        lat: null,
-        lng: null,
-        address: ""
       };
     }
+  })
+  var AutoCompleteResultList = Backbone.Collection.extend({
+    model: AutoCompleteResult,
   });
-
-
-
-  // COLLECTIONS (`MovieLocations` is defined and bootstrapped in `index.html`)
+  var autoCompleteResults = new AutoCompleteResultList();
   var SelectedMoviesList = Backbone.Collection.extend({
     model: MovieLocation
   });
 
-  // **SelectedMovies** will be a list of movies selected from the autocompleter
-  var SelectedMovies = new SelectedMoviesList;
 
+  // AUTOCOMPLETE-RESULT VIEW /////////////////////////////////////////////////
+  //   Manages single result Model instances (`AutoCompleteResult`)
+  //   for returned async results from the auto-completer. It manages the
+  //   creation and rendering if <li> elements appended to the
+  //   <ul id='autocomplete-result-container'>.
+  /////////////////////////////////////////////////////////////////////////////
+  var AutoCompleteResultView = Backbone.View.extend({
+    tagName: 'li',
+    template: _.template($('#autocomplete-result').html()),
+    model: AutoCompleteResult,
 
+    render: function(){
+      var tpl = this.$el.html(this.template(this.model.toJSON()));
+      return tpl;
+    },
+
+    clear: function() {
+      this.model.destroy();
+    }
+  });
+
+  // AUTOCOMPLETE-INPUT VIEW //////////////////////////////////////////////////
+  //   Manages input to the `#autocomplete-input` as well as updating the
+  //   response <ul> container.
+  /////////////////////////////////////////////////////////////////////////////
+  var AutoCompleteInputView = Backbone.View.extend({
+    el: $('#autocomplete-input'),
+    events: {
+      "keypress": "handleKeyPress",
+    },
+
+    // Handle key presses in the `#autocomplete-input`
+    handleKeyPress: function(){
+      var self = this;
+      var query = this.$el.val();
+      if(query.length < 2)
+        return;
+
+      // Make an async call to fetch any possible `Movie` matches
+      $.ajax({
+        url: urlMovies + "?term=" + encodeURIComponent(query),
+        dataType: "json",
+        type: "get",
+
+        success: function (data) {
+          // Remove existing elements from the result <ul> and reset the collection
+          var resultContainer = $("ul#autocomplete-result-container");
+          resultContainer.removeClass('dn');
+          resultContainer.empty();
+          self.collection.reset();
+
+          // Iterate over each async result and instantiate a new
+          // AutoCompleteResult obj then append it to the collection
+          // and append the rendered `AutoCompleteResultView` template
+          // to the <ul> container.
+          $.map(data['movies'], function(item) {
+            var model = new AutoCompleteResult({title: item.title});
+            // console.log(model.get('title'))
+            var view = new AutoCompleteResultView({model: model});
+
+            self.collection.add(model);
+            resultContainer.append(view.render());
+          });
+        }
+      });
+    }
+  });
+  var autoCompleteInputViewInstance = new AutoCompleteInputView({
+    collection: autoCompleteResults
+  });
 
   // MAPVIEW /////////////////////////////////////////////////////////////////
-  // Manages UI around the single Google Map binding.
+  //   Manages UI around the single Google Map binding.
   /////////////////////////////////////////////////////////////////////////////
   var MapView = Backbone.View.extend({
     el: $('#map-canvas'),
@@ -38,18 +101,16 @@ $(function(){
     initialize: function() {
       // Google config
       var mapOptions = {
-        center: new google.maps.LatLng(37.7533, -122.4173), // SF
+        center: new google.maps.LatLng(37.7533, -122.4173),
         zoom: 11,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
-      this.googleMap = new google.maps.Map(
-        document.getElementById("map-canvas"),
-        mapOptions
-      );
+      this.googleMap = new google.maps.Map(this.el, mapOptions);
       var infowindow = new google.maps.InfoWindow();
       var self = this;
 
       // Createa a map marker for each location in the `movieLocations` collection
+      // note: `movieLocations` is a collection bootstrapped in `index.html`.
       $.each(movieLocations.models, function(){
         self.createMarker(self.googleMap, this);
       });
@@ -90,51 +151,7 @@ $(function(){
       }
     }
   });
-  var mapView = new MapView;
-
-  // AUTOCOMPLETEVIEW /////////////////////////////////////////////////////////
-  // This view manages the autocompleter as well as as the selection list
-  // that renders the autocompleted results.
-  /////////////////////////////////////////////////////////////////////////////
-  var AutoCompleterView = Backbone.View.extend({
-    el: $('#autocompleter'),
-
-    events: {
-      "click #autocompleter-results": "selectResult",
-    },
-
-    initialize: function(){
-      $(this.el).on('keypress', this.handleAutoComplete);
-    },
-
-    // Make an async request to get a matching list of movies
-    // when the autocompleter is receives input (greater than 2 chars)
-    handleAutoComplete: function(){
-      var query = $(this).val();
-      if(query.length < 2)
-        return;
-
-      console.log(query)
-
-      // Make an async call to fetch any possible matches (DO I NEED A ROUTER FOR THIS?)
-      // I DON'T NECESSARILY NEED BACK/FWD HISTORY INFORMATION FOR THIS FEATURE.
-      $.ajax({
-        url: urlMovies + "?term=" + encodeURIComponent(query),
-        dataType: "json",
-        type: "get",
-        success: function (data) {
-          $.map(data['movies'], function(item) {
-
-
-
-            console.log({label: item.title});
-          });
-        }
-      });
-    }
-
-  });
-  var autoCompleterView = new AutoCompleterView;
+  var mapViewInstance = new MapView;
 
   // APPVIEW //////////////////////////////////////////////////////////////////
   // Top level piece of UI. This 'glues' everything (the autocompleter,
@@ -146,8 +163,8 @@ $(function(){
 
     // At initialization we bind to the relevant events on the `autocomplete input`
     // Loading any all movie locations from the API.
-    initialize: function(mapView) {
-      this.mapView = mapView;
+    initialize: function(mapViewInstance) {
+      this.mapViewInstance = mapViewInstance;
     },
 
     // Re-rendering the App just means
@@ -161,6 +178,6 @@ $(function(){
     }
 
   });
-  var app = new AppView(mapView);
+  var app = new AppView(mapViewInstance);
 
 });
