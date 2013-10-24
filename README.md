@@ -1,5 +1,5 @@
 # App Description
-I decided to work on the `SF Movies` challenge and built a simple app called 'Fog City Flicks' which [can be found here](http://www.fogcityflicks.com) (alternatively [here](http://uber-env-gx6emjwcqm.elasticbeanstalk.com/) if DNS is still propogating). I decided to go with ~~pure jQuery.js on the frontend~~ ([currently working on a more sane Backbone solution](https://github.com/cooncesean/uberchallenge/tree/backbone)), Python (flask) on the backend and MongoDB to store some geolocated data. The whole thing is hosted on [Amazon's Elastic Beanstalk](http://aws.amazon.com/elasticbeanstalk/).
+I decided to work on the `SF Movies` challenge and built a simple app called 'Fog City Flicks' which [can be found here](http://www.fogcityflicks.com) (alternatively [here](http://uber-env-gx6emjwcqm.elasticbeanstalk.com/) if DNS is still propogating). I decided to go with ~~pure jQuery.js on the frontend~~ ([there is now a fully refactored Backbone solution here](https://github.com/cooncesean/uberchallenge/tree/backbone)), Python (flask) on the backend and MongoDB to store some geolocated data. The whole thing is hosted on [Amazon's Elastic Beanstalk](http://aws.amazon.com/elasticbeanstalk/).
 
 # Installation
 Steps to install and run this project locally.
@@ -31,9 +31,12 @@ The views and models found in the project have reasonable coverage.
 
 
 # Stack Experience
+**Update:** The app has now been [fully refactored](https://github.com/cooncesean/uberchallenge/tree/backbone) (and greatly simplified) using Backbone on the frontend.
+
 I'm more familiar with Django and have only recently started working with Flask. That said, I am really digging its flexibility and have found that its perfect projects like this. As its such a 'loose' framework,  I'm still trying to figure out the most logical way to structure my projects -- and this seems to work for now.
 
-I had zero Backbone.js experience and I actually [ventured down this path](https://www.youtube.com/watch?v=FZSjvWtUxYk) for about an hour before deciding to get to work using conventions I'm more familiar with. That said, I'm not super happy with the Javascript that's powering this app -- [so I've decided to create a branch to start refactoring this logic using Backbone](https://github.com/cooncesean/uberchallenge/tree/backbone). I know its passed the 'deadline'... I'm just interested in learning more about it and this seemed like a nice opportunity to do so.
+I had zero Backbone.js experience and I actually [ventured down this path](https://www.youtube.com/watch?v=FZSjvWtUxYk) for about an hour before deciding to get to work using conventions I'm more familiar with. That said, I wasn't super happy with the Javascript that was powering the app -- [so I decided to create a branch to start refactoring this logic using Backbone](https://github.com/cooncesean/uberchallenge/tree/backbone). I know its passed the 'deadline'... I'm just interested in learning more about it and this seemed like a nice opportunity to do so.
+
 
 
 # TODO
