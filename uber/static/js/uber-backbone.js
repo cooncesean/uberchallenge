@@ -18,6 +18,9 @@ $(function(){
     model: Movie
   });
   var selectedMovieHistory = new SelectedMovieHistory();
+  selectedMovieHistory.comparator = function(movie) {
+    return -movie.get("date_added");
+  };
 
   // AUTOCOMPLETE-INPUT VIEW //////////////////////////////////////////////////
   //   Manages input to the `#autocomplete-input` as well as updating the
@@ -42,6 +45,7 @@ $(function(){
           // Add the `movie` to the `selectedMovieHistory` collection
           // if it doesn't already exist
           if(! selectedMovieHistory.findWhere({'title': movie.title})){
+            movie.set({'date_added': $.now()})
             selectedMovieHistory.add(movie);
           }
 
