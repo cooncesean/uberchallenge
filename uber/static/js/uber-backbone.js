@@ -10,6 +10,8 @@ $(function(){
   //    2. `searchHistorySelected`: Fired when a item in the `selectedMovieHistory`
   //        has been clicked. The `MovieInfoView` and `MapView` both listen to this
   //        event and update themselves accordingly.
+  //    3. `highlightMapMarker`: Fired when a movie address is clicked. Handled
+  //        by the MapView and highlights the appropriate map marker.
   /////////////////////////////////////////////////////////////////////////////
   Backbone.pubSub = _.extend({}, Backbone.Events);
 
@@ -21,6 +23,7 @@ $(function(){
   selectedMovieHistory.comparator = function(movie) {
     return -movie.get("date_added");
   };
+  var movieAddresses = new Backbone.Collection();
 
   // AUTOCOMPLETE-INPUT VIEW //////////////////////////////////////////////////
   //   Manages input to the `#autocomplete-input` as well as updating the
@@ -66,9 +69,10 @@ $(function(){
 
     // Init the map on the page, binding it to #map-canvas
     initialize: function() {
-      // Subscribe to the `movieSelected` event (triggered from the `SearchHistoryItemView`)
+      // Subscribe to some global events
       Backbone.pubSub.on('autocompleteSelected', this.updateMap, this);
       Backbone.pubSub.on('searchHistorySelected', this.updateMap, this);
+      Backbone.pubSub.on('highlightMapMarker', this.highlightMapMarker, this);
 
       // Google map config
       var mapOptions = {
@@ -138,6 +142,23 @@ $(function(){
 
       // Create new markers for only this location
       this.createMarkersForMovie(movie);
+    },
+
+    // Highlight a specific marker on a map for a given address object
+    highlightMapMarker: function(addy_plus_geo){
+      // This is a ghetto way of finding the matching marker
+      var lat = addy_plus_geo.get('geo').lat.toFixed(7);
+      var lng = addy_plus_geo.get('geo').lng.toFixed(7);
+      _.each(this.markers, function(marker){
+        // If the marker is found, highlight it
+        if (marker.position.lb.toFixed(7) == lat && marker.position.mb.toFixed(7) == lng){
+          google.maps.event.trigger(marker, 'mouseover');
+        }
+        // De-highlight every other marker on the map
+        else{
+          google.maps.event.trigger(marker, 'mouseout');
+        }
+      });
     }
   });
   var mapView = new MapView;
@@ -146,22 +167,78 @@ $(function(){
   //   Manages UI regarding the movie info and locations on the sidebar (under
   //   the autocompleter), once a movie is selected.
   /////////////////////////////////////////////////////////////////////////////
-  var MovieInfoView = Backbone.View.extend({
+  var MovieTitleView = Backbone.View.extend({
     el: $("#selected-movie-info"),
     tagName: 'div',
-    template: _.template($('#movie-info-template').html()),
+    template: _.template($('#movie-title-template').html()),
 
     initialize: function(){
-      // Subscribe to the `movieSelected` event (triggered from the `SearchHistoryItemView`)
-      Backbone.pubSub.on('autocompleteSelected', this.render, this);
-      Backbone.pubSub.on('searchHistorySelected', this.render, this);
+      // Subscribe to some global events
+      Backbone.pubSub.on('autocompleteSelected', this.handleMovieSelected, this);
+      Backbone.pubSub.on('searchHistorySelected', this.handleMovieSelected, this);
+    },
+
+    handleMovieSelected: function(movie){
+      // Render the movie title
+      this.render(movie);
+
+      // Reset the `movieAddresses` collection with the the movie's `addy_plus_geo` data
+      movieAddresses.reset(movie.get('addy_plus_geo'));
     },
 
     render: function(movie){
       this.$el.html(this.template(movie.toJSON()));
-    },
+    }
   });
-  var movieInfo = new MovieInfoView();
+  var movieTitle = new MovieTitleView();
+
+  // MOVIE ADDRESS LIST AND ITEM VIEWS /////////////////////////////////////////
+  //   Manages the movie address (list and items) in the `selected-movie-info`
+  //   sidebar pane. The `MovieAddressItemView` also fires a `highlightMapMarker`
+  //   event when one of the addresses is clicked -- which is handled by the
+  //   `MapView` and highlights the appropriate marker on the map.
+  /////////////////////////////////////////////////////////////////////////////
+  MovieAddressListView = Backbone.View.extend({
+      el: $("ul#selected-movie-addresses"),
+      tagName: "ul",
+
+      initialize: function(){
+        _.bindAll(this, "renderItem");
+        this.listenTo(this.collection, 'reset', this.render);
+      },
+
+      renderItem: function(model){
+        var itemView = new MovieAddressItemView({model: model});
+        itemView.render();
+        $(this.el).append(itemView.el);
+      },
+
+      render: function(){
+        this.$el.empty();
+        this.collection.each(this.renderItem);
+      }
+  });
+
+  MovieAddressItemView = Backbone.View.extend({
+      tagName: "li",
+      template: _.template($('#movie-address-item-template').html()),
+      events: {
+        "click a": "clicked"
+      },
+
+      clicked: function(e){
+        e.preventDefault();
+        Backbone.pubSub.trigger('highlightMapMarker', this.model);
+      },
+
+      render: function(){
+        var html = this.template(this.model.toJSON());
+        $(this.el).append(html);
+      }
+  });
+  var movieAddressList = new MovieAddressListView({collection: movieAddresses});
+
+
 
   // SELECTED MOVIE HISTORY ///////////////////////////////////////////////////
   //   Manages the `history` <ul> and updates it whenever a user selects a new
@@ -180,19 +257,19 @@ $(function(){
       tagName: "ul",
 
       initialize: function(){
-          _.bindAll(this, "renderItem");
-          this.listenTo(this.collection, 'add', this.render);
+        _.bindAll(this, "renderItem");
+        this.listenTo(this.collection, 'add', this.render);
       },
 
       renderItem: function(model){
-          var itemView = new SearchHistoryItemView({model: model});
-          itemView.render();
-          $(this.el).append(itemView.el);
+        var itemView = new SearchHistoryItemView({model: model});
+        itemView.render();
+        $(this.el).append(itemView.el);
       },
 
       render: function(){
-          this.$el.empty();
-          this.collection.each(this.renderItem);
+        this.$el.empty();
+        this.collection.each(this.renderItem);
       }
   });
 
@@ -200,17 +277,17 @@ $(function(){
       tagName: "li",
       template: _.template($('#searchhistory-item-template').html()),
       events: {
-          "click a": "clicked"
+        "click a": "clicked"
       },
 
       clicked: function(e){
-          e.preventDefault();
-          Backbone.pubSub.trigger('searchHistorySelected', this.model);
+        e.preventDefault();
+        Backbone.pubSub.trigger('searchHistorySelected', this.model);
       },
 
       render: function(){
-          var html = this.template(this.model.toJSON());
-          $(this.el).append(html);
+        var html = this.template(this.model.toJSON());
+        $(this.el).append(html);
       }
   });
   var searchHistoryList = new SearchHistoryListView({collection: selectedMovieHistory});
