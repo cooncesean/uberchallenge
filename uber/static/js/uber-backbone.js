@@ -171,9 +171,7 @@ $(function(){
     },
 
     render: function(){
-      console.log(this.model);
       this.$el.append(this.template(this.model.toJSON()));
-      // this.
     },
   });
 
