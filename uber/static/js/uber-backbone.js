@@ -6,6 +6,7 @@ $(function(){
   var SelectedMovieHistory = Backbone.Collection.extend({
     model: Movie
   });
+  var selectedMovieHistory = new SelectedMovieHistory();
 
   // AUTOCOMPLETE-INPUT VIEW //////////////////////////////////////////////////
   //   Manages input to the `#autocomplete-input` as well as updating the
@@ -23,6 +24,7 @@ $(function(){
         source : allMovies.pluck("title"),
         minLength : 2,
         select: function(event, ui){
+
           // Get the movie object from the `allMovies` collection
           movie = allMovies.findWhere({'title': ui.item.value})
 
@@ -30,8 +32,11 @@ $(function(){
           var movieInfo = new MovieInfoView({model: movie});
           movieInfo.render();
 
-          var searchHistory = new SearchHistory({model: movie});
-          searchHistory.render();
+          // Add the `movie` to the `selectedMovieHistory` collection
+          // if it doesn't already exist
+          if(! selectedMovieHistory.findWhere({'title': movie.title})){
+            selectedMovieHistory.add(movie);
+          }
         }
       });
     },
@@ -115,6 +120,7 @@ $(function(){
     // The map is updated whenever a selection has been made from the autocomplete
     // results.
     updateMap: function(event, selection){
+
       // Get the movie object from the `allMovies` collection
       movie = allMovies.findWhere({'title': selection.item.value})
 
@@ -148,16 +154,24 @@ $(function(){
   /////////////////////////////////////////////////////////////////////////////
   var SearchHistory = Backbone.View.extend({
     el: $("ul#history"),
-    model: Movie,
     tagName: 'li',
     template: _.template($('#selected-movie-history-template').html()),
 
-    render: function(){
-      var li = this.template(this.model.toJSON());
+    open: function(){
+      console.log(this)
+    },
+
+    initialize: function(){
+      this.listenTo(this.collection, 'add', this.render);
+    },
+
+    render: function(movie){
+      var li = this.template(movie.toJSON());
       this.$el.prepend(li);
       // $(li).effect("highlight", {}, 1500);
-    },
+    }
   });
+  var searchHistory = new SearchHistory({collection: selectedMovieHistory});
 
   // Always clear the autocomleter on click
   $('#autocomplete-input').click(function(){
