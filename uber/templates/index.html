@@ -104,7 +104,7 @@
 
     <!-- Templates -->
     <script type="text/template" id="movie-info-template">
-      <label id='selected-movie-title'><%- movie_title %></label><br/>
+      <label id='selected-movie-title'><%- title %> (<%- location_count %>) </label><br/>
       <div id='selected-movie-info'>
         <ul>
           <% _.each( addy_plus_geo, function(obj){ %>
@@ -115,7 +115,7 @@
     </script>
 
     <script type="text/template" id="selected-movie-history-template">
-      <a><%- title %></a>
+      <li><a class='historical-movie'><%- title %></a></li>
     </script>
 
   </body>

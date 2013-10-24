@@ -30,8 +30,8 @@ $(function(){
           var movieInfo = new MovieInfoView({model: movie});
           movieInfo.render();
 
-          var movieHistory = new MovieHistory({model: movie});
-          movieHistory.render();
+          var searchHistory = new SearchHistory({model: movie});
+          searchHistory.render();
         }
       });
     },
@@ -137,21 +137,8 @@ $(function(){
     tagName: 'div',
     template: _.template($('#movie-info-template').html()),
 
-    initialize: function() {
-      _.bindAll(this, "render");
-      $("#autocomplete-input").on("autocompleteselect", this.render);
-    },
-
     render: function(){
-      // addressString = "";
-      // $.each(this.model.get('addy_plus_geo'), function(){
-      //   addressString += "<li>" + this.address + "</li>";
-      // });
-      this.$el.html(this.template({
-        'movie_title': this.model.get('title'),
-        // 'addy_plus_geo': addressString
-        'addy_plus_geo': this.model.get('addy_plus_geo')
-      }));
+      this.$el.html(this.template(this.model.toJSON()));
     },
   });
 
@@ -159,19 +146,16 @@ $(function(){
   //   Manages the `history` <ul> and updates it whenever a user selects a new
   //   movie from the autocompleter.
   /////////////////////////////////////////////////////////////////////////////
-  var MovieHistory = Backbone.View.extend({
+  var SearchHistory = Backbone.View.extend({
     el: $("ul#history"),
     model: Movie,
     tagName: 'li',
     template: _.template($('#selected-movie-history-template').html()),
 
-    initialize: function() {
-      _.bindAll(this, "render");
-      $("#autocomplete-input").on("autocompleteselect", this.render);
-    },
-
     render: function(){
-      this.$el.append(this.template(this.model.toJSON()));
+      var li = this.template(this.model.toJSON());
+      this.$el.prepend(li);
+      // $(li).effect("highlight", {}, 1500);
     },
   });
 
