@@ -99,6 +99,17 @@ ul#history li a{
 a.ui-state-focus{
     font-weight:bold;
 }
+#selected-movie-info ul{
+    margin:0px;
+    padding:0px;
+}
+#selected-movie-info ul li{
+    margin:0px;
+    padding:5px 0px;
+    border-top: 1px dotted #ccc;
+    font-size: 12px;
+    list-style: none;
+}
 
 
 @font-face {
