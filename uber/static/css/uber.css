@@ -90,7 +90,7 @@ ul#history{
 }
 ul#history li{
     display: inline !important;
-    margin-right: 10px;
+    margin-right: 7px;
 }
 ul#history li a{
     cursor: pointer;

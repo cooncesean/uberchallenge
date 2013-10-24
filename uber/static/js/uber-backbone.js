@@ -2,6 +2,17 @@ $(function(){
   // Note that the `Movie` model and `movies` collection
   // are declared in `index.html` for bootstrapping purposes.
 
+  // EVENT AGGREGATOR /////////////////////////////////////////////////////////
+  //   Global Events:
+  //    1. `autocompleteSelected`: Fired when a selection has been made from the
+  //        the #autocompleter-input. The `MovieInfoView` and `MapView` both
+  //        listen to this event and update themselves accordingly.
+  //    2. `searchHistorySelected`: Fired when a item in the `selectedMovieHistory`
+  //        has been clicked. The `MovieInfoView` and `MapView` both listen to this
+  //        event and update themselves accordingly.
+  /////////////////////////////////////////////////////////////////////////////
+  Backbone.pubSub = _.extend({}, Backbone.Events);
+
   // COLLECTIONS //////////////////////////////////////////////////////////////
   var SelectedMovieHistory = Backbone.Collection.extend({
     model: Movie
@@ -28,15 +39,14 @@ $(function(){
           // Get the movie object from the `allMovies` collection
           movie = allMovies.findWhere({'title': ui.item.value})
 
-          // Instantiate and new `MovieInfoView` and pass the selected movie to it
-          var movieInfo = new MovieInfoView({model: movie});
-          movieInfo.render();
-
           // Add the `movie` to the `selectedMovieHistory` collection
           // if it doesn't already exist
           if(! selectedMovieHistory.findWhere({'title': movie.title})){
             selectedMovieHistory.add(movie);
           }
+
+          // Fire the `autocompleteSelected` event
+          Backbone.pubSub.trigger('autocompleteSelected', movie);
         }
       });
     },
@@ -52,11 +62,11 @@ $(function(){
 
     // Init the map on the page, binding it to #map-canvas
     initialize: function() {
-      // Bind the `updateMap` method and listen to the `autocompleteselect` event
-      _.bindAll(this, "updateMap");
-      $("#autocomplete-input").on("autocompleteselect", this.updateMap);
+      // Subscribe to the `movieSelected` event (triggered from the `SearchHistoryItemView`)
+      Backbone.pubSub.on('autocompleteSelected', this.updateMap, this);
+      Backbone.pubSub.on('searchHistorySelected', this.updateMap, this);
 
-      // Google config
+      // Google map config
       var mapOptions = {
         center: new google.maps.LatLng(37.7533, -122.4173),
         zoom: 11,
@@ -69,13 +79,13 @@ $(function(){
       // Createa a map marker for each location in the `movieLocations` collection
       // note: `movieLocations` is a collection bootstrapped in `index.html`.
       $.each(allMovies.models, function(){
-        self.createMarkerForMovie(this);
+        self.createMarkersForMovie(this);
       });
     },
 
     // Create a new markers on the map for each lat/lng in `movie` objects
     // `addy_plus_geo` list.
-    createMarkerForMovie: function(movie){
+    createMarkersForMovie: function(movie){
       var self = this;
       $.each(movie.get('addy_plus_geo'), function(){
 
@@ -117,18 +127,13 @@ $(function(){
       }
     },
 
-    // The map is updated whenever a selection has been made from the autocomplete
-    // results.
-    updateMap: function(event, selection){
-
-      // Get the movie object from the `allMovies` collection
-      movie = allMovies.findWhere({'title': selection.item.value})
-
+    // Update the markers on the map w/ those of a selected `movie`
+    updateMap: function(movie){
       // Delete all of the existing markers
       this.deleteMarkers();
 
       // Create new markers for only this location
-      this.createMarkerForMovie(movie);
+      this.createMarkersForMovie(movie);
     }
   });
   var mapView = new MapView;
@@ -139,39 +144,72 @@ $(function(){
   /////////////////////////////////////////////////////////////////////////////
   var MovieInfoView = Backbone.View.extend({
     el: $("#selected-movie-info"),
-    model: Movie,
     tagName: 'div',
     template: _.template($('#movie-info-template').html()),
 
-    render: function(){
-      this.$el.html(this.template(this.model.toJSON()));
+    initialize: function(){
+      // Subscribe to the `movieSelected` event (triggered from the `SearchHistoryItemView`)
+      Backbone.pubSub.on('autocompleteSelected', this.render, this);
+      Backbone.pubSub.on('searchHistorySelected', this.render, this);
+    },
+
+    render: function(movie){
+      this.$el.html(this.template(movie.toJSON()));
     },
   });
+  var movieInfo = new MovieInfoView();
 
   // SELECTED MOVIE HISTORY ///////////////////////////////////////////////////
   //   Manages the `history` <ul> and updates it whenever a user selects a new
   //   movie from the autocompleter.
+  //   The two following views follow a design pattern found here:
+  //   http://lostechies.com/derickbailey/2011/10/11/backbone-js-getting-the-model-for-a-clicked-element/
+  //
+  //   Essentially the `SearchHistoryListView` mananages a list of `SearchHistoryItemView`
+  //   views which in turn manage single `Movie` model instances in the user's
+  //   search history. The `SearchHistoryItemView` is responsible for rendering
+  //   and event handling on a single `Movie` in the history while the list view
+  //   is responsible for rendering the entire list of objects in the collection.
   /////////////////////////////////////////////////////////////////////////////
-  var SearchHistory = Backbone.View.extend({
-    el: $("ul#history"),
-    tagName: 'li',
-    template: _.template($('#selected-movie-history-template').html()),
+  SearchHistoryListView = Backbone.View.extend({
+      el: $("ul#history"),
+      tagName: "ul",
 
-    open: function(){
-      console.log(this)
-    },
+      initialize: function(){
+          _.bindAll(this, "renderItem");
+          this.listenTo(this.collection, 'add', this.render);
+      },
 
-    initialize: function(){
-      this.listenTo(this.collection, 'add', this.render);
-    },
+      renderItem: function(model){
+          var itemView = new SearchHistoryItemView({model: model});
+          itemView.render();
+          $(this.el).append(itemView.el);
+      },
 
-    render: function(movie){
-      var li = this.template(movie.toJSON());
-      this.$el.prepend(li);
-      // $(li).effect("highlight", {}, 1500);
-    }
+      render: function(){
+          this.$el.empty();
+          this.collection.each(this.renderItem);
+      }
   });
-  var searchHistory = new SearchHistory({collection: selectedMovieHistory});
+
+  SearchHistoryItemView = Backbone.View.extend({
+      tagName: "li",
+      template: _.template($('#searchhistory-item-template').html()),
+      events: {
+          "click a": "clicked"
+      },
+
+      clicked: function(e){
+          e.preventDefault();
+          Backbone.pubSub.trigger('searchHistorySelected', this.model);
+      },
+
+      render: function(){
+          var html = this.template(this.model.toJSON());
+          $(this.el).append(html);
+      }
+  });
+  var searchHistoryList = new SearchHistoryListView({collection: selectedMovieHistory});
 
   // Always clear the autocomleter on click
   $('#autocomplete-input').click(function(){
