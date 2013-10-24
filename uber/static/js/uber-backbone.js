@@ -3,7 +3,7 @@ $(function(){
   // are declared in `index.html` for bootstrapping purposes.
 
   // COLLECTIONS //////////////////////////////////////////////////////////////
-  var SelectedMoviesList = Backbone.Collection.extend({
+  var SelectedMovieHistory = Backbone.Collection.extend({
     model: Movie
   });
 
@@ -27,8 +27,11 @@ $(function(){
           movie = allMovies.findWhere({'title': ui.item.value})
 
           // Instantiate and new `MovieInfoView` and pass the selected movie to it
-          var movieInfo = new MovieInfoView(movie);
+          var movieInfo = new MovieInfoView({model: movie});
           movieInfo.render();
+
+          var movieHistory = new MovieHistory({model: movie});
+          movieHistory.render();
         }
       });
     },
@@ -140,14 +143,37 @@ $(function(){
     },
 
     render: function(){
-      addressString = "";
-      $.each(movie.get('addy_plus_geo'), function(){
-        addressString += "<li>" + this.address + "</li>";
-      });
+      // addressString = "";
+      // $.each(this.model.get('addy_plus_geo'), function(){
+      //   addressString += "<li>" + this.address + "</li>";
+      // });
       this.$el.html(this.template({
-        'movie_title': movie.get('title'),
-        'addy_plus_geo': addressString
+        'movie_title': this.model.get('title'),
+        // 'addy_plus_geo': addressString
+        'addy_plus_geo': this.model.get('addy_plus_geo')
       }));
+    },
+  });
+
+  // SELECTED MOVIE HISTORY ///////////////////////////////////////////////////
+  //   Manages the `history` <ul> and updates it whenever a user selects a new
+  //   movie from the autocompleter.
+  /////////////////////////////////////////////////////////////////////////////
+  var MovieHistory = Backbone.View.extend({
+    el: $("ul#history"),
+    model: Movie,
+    tagName: 'li',
+    template: _.template($('#selected-movie-history-template').html()),
+
+    initialize: function() {
+      _.bindAll(this, "render");
+      $("#autocomplete-input").on("autocompleteselect", this.render);
+    },
+
+    render: function(){
+      console.log(this.model);
+      this.$el.append(this.template(this.model.toJSON()));
+      // this.
     },
   });
 

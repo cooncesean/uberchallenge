@@ -104,12 +104,18 @@
 
     <!-- Templates -->
     <script type="text/template" id="movie-info-template">
-        <label id='selected-movie-title'><%- movie_title %></label><br/>
-        <div id='selected-movie-info'>
-          <ul>
-            <%- addy_plus_geo %>
-          </ul>
-        </div>
+      <label id='selected-movie-title'><%- movie_title %></label><br/>
+      <div id='selected-movie-info'>
+        <ul>
+          <% _.each( addy_plus_geo, function(obj){ %>
+            <li><%= obj.address %></li>
+          <% }); %>
+        </ul>
+      </div>
+    </script>
+
+    <script type="text/template" id="selected-movie-history-template">
+      <a><%- title %></a>
     </script>
 
   </body>
