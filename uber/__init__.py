@@ -33,6 +33,6 @@ def create_application(default_env='DEVELOPMENT'):
     )
 
     # Import and route all views
-    from uber.views import index, movies, movie, not_found
+    from uber.views import index
 
     return application
