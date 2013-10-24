@@ -96,6 +96,10 @@ ul#history li a{
     cursor: pointer;
     text-decoration: underline;
 }
+a.ui-state-focus{
+    font-weight:bold;
+}
+
 
 @font-face {
     font-family: 'icomoon';

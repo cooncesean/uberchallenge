@@ -82,7 +82,7 @@
       // add each to the movieLocations collection.
       {% for db_movie in movies %}
         var movie = new Movie({
-          'title': '{{ db_movie.title }}',
+          'title': "{{ db_movie.title|safe }}",
           'location_count': {{ db_movie.serialize().addy_plus_geo|count }},
           'addy_plus_geo':[
             {% for position_tuple in db_movie.serialize().addy_plus_geo %}
