@@ -31,7 +31,7 @@ The views and models found in the project have reasonable coverage.
 
 
 # Stack Experience
-**Update:** The app has now been [fully refactored](https://github.com/cooncesean/uberchallenge/tree/backbone) (and greatly simplified) using Backbone on the frontend. The two most important files to look at in this branch are [`index.html`](https://github.com/cooncesean/uberchallenge/blob/backbone/uber/templates/index.html) and [`js/`](https://github.com/cooncesean/uberchallenge/blob/backbone/uber/static/js/uber-backbone.js).
+**Update:** The app has now been [fully refactored](https://github.com/cooncesean/uberchallenge/tree/backbone) (and greatly simplified) using Backbone on the frontend. The two most important files to look at in this branch are [`index.html`](https://github.com/cooncesean/uberchallenge/blob/backbone/uber/templates/index.html) and [`js/uber-backbone.js`](https://github.com/cooncesean/uberchallenge/blob/backbone/uber/static/js/uber-backbone.js).
 
 I'm more familiar with Django and have only recently started working with Flask. That said, I am really digging its flexibility and have found that its perfect projects like this. As its such a 'loose' framework,  I'm still trying to figure out the most logical way to structure my projects -- and this seems to work for now.
 
