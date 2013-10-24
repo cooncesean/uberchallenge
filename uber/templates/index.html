@@ -26,10 +26,7 @@
         </section>
 
         {# Information about the selected movie will be dynamically managed here #}
-        <section class='sidebar-input'>
-          <label id='selected-movie-title'></label><br/>
-          <div id='selected-movie-info'></div>
-        </section>
+        <section id='selected-movie-info' class='sidebar-input'></section>
       </div>
 
       {# Right side content (map) #}
@@ -61,7 +58,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js" type="text/javascript"></script>
     <script src="//maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAP_API_KEY }}&sensor=false" type="text/javascript" ></script>
-
 
     <script>
       // Bootstrap the default movie data
@@ -103,7 +99,18 @@
         allMovies.add(movie);
       {% endfor %}
     </script>
+
     <script src="{{ url_for('static', filename='js/uber-backbone.js') }}" type="text/javascript"></script>
+
+    <!-- Templates -->
+    <script type="text/template" id="movie-info-template">
+        <label id='selected-movie-title'><%- movie_title %></label><br/>
+        <div id='selected-movie-info'>
+          <ul>
+            <%- addy_plus_geo %>
+          </ul>
+        </div>
+    </script>
 
   </body>
 </html>

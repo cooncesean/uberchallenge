@@ -2,7 +2,7 @@ $(function(){
   // Note that the `Movie` model and `movies` collection
   // are declared in `index.html` for bootstrapping purposes.
 
-  // COLLECTIONS ///////////////////////////////////////////////////////
+  // COLLECTIONS //////////////////////////////////////////////////////////////
   var SelectedMoviesList = Backbone.Collection.extend({
     model: Movie
   });
@@ -22,14 +22,22 @@ $(function(){
       this.$el.autocomplete({
         source : allMovies.pluck("title"),
         minLength : 2,
+        select: function(event, ui){
+          // Get the movie object from the `allMovies` collection
+          movie = allMovies.findWhere({'title': ui.item.value})
+
+          // Instantiate and new `MovieInfoView` and pass the selected movie to it
+          var movieInfo = new MovieInfoView(movie);
+          movieInfo.render();
+        }
       });
     },
   });
-  var autoCompleteInputViewInstance = new AutoCompleteInputView;
+  var autcompleteInput = new AutoCompleteInputView;
 
   // MAPVIEW /////////////////////////////////////////////////////////////////
   //   Manages UI around the single Google Map binding.
-  /////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////
   var MapView = Backbone.View.extend({
     el: $('#map-canvas'),
     markers: [],
@@ -64,7 +72,6 @@ $(function(){
       $.each(movie.get('addy_plus_geo'), function(){
 
         // Create the marker object
-        console.log(this.googleMap);
         marker = new google.maps.Marker({
           map: self.googleMap,
           position: new google.maps.LatLng(
@@ -112,15 +119,40 @@ $(function(){
       this.deleteMarkers();
 
       // Create new markers for only this location
-      console.log(movie)
       this.createMarkerForMovie(movie);
     }
   });
-  var mapViewInstance = new MapView;
+  var mapView = new MapView;
 
+  // MOVIE INFO  //////////////////////////////////////////////////////////////
+  //   Manages UI regarding the movie info and locations on the sidebar (under
+  //   the autocompleter), once a movie is selected.
+  /////////////////////////////////////////////////////////////////////////////
+  var MovieInfoView = Backbone.View.extend({
+    el: $("#selected-movie-info"),
+    model: Movie,
+    tagName: 'div',
+    template: _.template($('#movie-info-template').html()),
+
+    initialize: function() {
+      _.bindAll(this, "render");
+      $("#autocomplete-input").on("autocompleteselect", this.render);
+    },
+
+    render: function(){
+      addressString = "";
+      $.each(movie.get('addy_plus_geo'), function(){
+        addressString += "<li>" + this.address + "</li>";
+      });
+      this.$el.html(this.template({
+        'movie_title': movie.get('title'),
+        'addy_plus_geo': addressString
+      }));
+    },
+  });
 
   // Always clear the autocomleter on click
   $('#autocomplete-input').click(function(){
     $(this).val('');
-  })
+  });
 });
