@@ -1,5 +1,7 @@
 import inspect
 import json
+import sha
+import time
 import urllib
 import urllib2
 from uber import db, application, models
@@ -62,3 +64,7 @@ def flush_database():
     for name, cls in inspect.getmembers(models, inspect.isclass):
         if issubclass(cls, db.Document):
             cls.objects.all().delete()
+
+def build_session_id():
+    " Util method to build a random session id. "
+    return sha.sha(str(time.time())).hexdigest()

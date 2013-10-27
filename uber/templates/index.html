@@ -11,7 +11,6 @@
   <body>
     {# Main DOM Elements ############}
     <div id="container">
-
       {# Left side content #}
       <div id="sidebar">
         <h3>Refine These Results</h3>
@@ -47,7 +46,7 @@
           <h1><i class='icon-movie4'></i> Fog City Flicks</h1>
         </div>
         <p class="navbar-text pull-right love">
-          Built with Flask, jQuery and caffeine by <a href="http://www.seancoonce.com/uber/" class="navbar-link">Sean Coonce</a>.<br />
+          Built with Flask, BackBone and caffeine by <a href="http://www.seancoonce.com/uber/" class="navbar-link">Sean Coonce</a>.<br />
           To use, simply interact with the map or search for movies using the autocompleter to the left.
         </p>
       </nav>
@@ -83,6 +82,7 @@
       // add each to the movieLocations collection.
       {% for db_movie in movies %}
         var movie = new Movie({
+          'id': "{{ db_movie.str_id }}",
           'title': "{{ db_movie.title|safe }}",
           'location_count': {{ db_movie.serialize().addy_plus_geo|count }},
           'addy_plus_geo':[

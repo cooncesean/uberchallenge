@@ -36,18 +36,26 @@ $(function(){
       // Wire up the autocompleter dom element `this.el`
       // Note: The jqueryui.autcomplete instance fires an `autocompleteselect`
       //       event when a result is selected. The list passed to the `source`
-      //       of the autocompleter is the list of initial movie names.
+      //       of the autocompleter is the list of initial movie titles / ids.
       this.$el.autocomplete({
-        source : allMovies.pluck("title"),
+        source : allMovies.map(function(obj){return {'label': obj.get('title'), 'value': obj.get('id')}}),
         minLength : 2,
+        focus: function(event, ui){
+          // Default functionality is to render the `value` not the `label` (reverse this)
+          event.preventDefault();
+          $(this).val(ui.item.label);
+        },
         select: function(event, ui){
+          // Default functionality is to render the `value` not the `label` (reverse this)
+          event.preventDefault();
+          $(this).val(ui.item.label);
 
           // Get the movie object from the `allMovies` collection
-          movie = allMovies.findWhere({'title': ui.item.value})
+          movie = allMovies.findWhere({'id': ui.item.value})
 
           // Add the `movie` to the `selectedMovieHistory` collection
           // if it doesn't already exist
-          if(! selectedMovieHistory.findWhere({'title': movie.title})){
+          if(! selectedMovieHistory.findWhere({'id': movie.id})){
             movie.set({'date_added': $.now()})
             selectedMovieHistory.add(movie);
           }
@@ -199,42 +207,42 @@ $(function(){
   //   `MapView` and highlights the appropriate marker on the map.
   /////////////////////////////////////////////////////////////////////////////
   MovieAddressListView = Backbone.View.extend({
-      el: $("ul#selected-movie-addresses"),
-      tagName: "ul",
+    el: $("ul#selected-movie-addresses"),
+    tagName: "ul",
 
-      initialize: function(){
-        _.bindAll(this, "renderItem");
-        this.listenTo(this.collection, 'reset', this.render);
-      },
+    initialize: function(){
+      _.bindAll(this, "renderItem");
+      this.listenTo(this.collection, 'reset', this.render);
+    },
 
-      renderItem: function(model){
-        var itemView = new MovieAddressItemView({model: model});
-        itemView.render();
-        $(this.el).append(itemView.el);
-      },
+    renderItem: function(model){
+      var itemView = new MovieAddressItemView({model: model});
+      itemView.render();
+      $(this.el).append(itemView.el);
+    },
 
-      render: function(){
-        this.$el.empty();
-        this.collection.each(this.renderItem);
-      }
+    render: function(){
+      this.$el.empty();
+      this.collection.each(this.renderItem);
+    }
   });
 
   MovieAddressItemView = Backbone.View.extend({
-      tagName: "li",
-      template: _.template($('#movie-address-item-template').html()),
-      events: {
-        "click a": "clicked"
-      },
+    tagName: "li",
+    template: _.template($('#movie-address-item-template').html()),
+    events: {
+      "click a": "clicked"
+    },
 
-      clicked: function(e){
-        e.preventDefault();
-        Backbone.pubSub.trigger('highlightMapMarker', this.model);
-      },
+    clicked: function(e){
+      e.preventDefault();
+      Backbone.pubSub.trigger('highlightMapMarker', this.model);
+    },
 
-      render: function(){
-        var html = this.template(this.model.toJSON());
-        $(this.el).append(html);
-      }
+    render: function(){
+      var html = this.template(this.model.toJSON());
+      $(this.el).append(html);
+    }
   });
   var movieAddressList = new MovieAddressListView({collection: movieAddresses});
 
@@ -253,42 +261,42 @@ $(function(){
   //   is responsible for rendering the entire list of objects in the collection.
   /////////////////////////////////////////////////////////////////////////////
   SearchHistoryListView = Backbone.View.extend({
-      el: $("ul#history"),
-      tagName: "ul",
+    el: $("ul#history"),
+    tagName: "ul",
 
-      initialize: function(){
-        _.bindAll(this, "renderItem");
-        this.listenTo(this.collection, 'add', this.render);
-      },
+    initialize: function(){
+      _.bindAll(this, "renderItem");
+      this.listenTo(this.collection, 'add', this.render);
+    },
 
-      renderItem: function(model){
-        var itemView = new SearchHistoryItemView({model: model});
-        itemView.render();
-        $(this.el).append(itemView.el);
-      },
+    renderItem: function(model){
+      var itemView = new SearchHistoryItemView({model: model});
+      itemView.render();
+      $(this.el).append(itemView.el);
+    },
 
-      render: function(){
-        this.$el.empty();
-        this.collection.each(this.renderItem);
-      }
+    render: function(){
+      this.$el.empty();
+      this.collection.each(this.renderItem);
+    }
   });
 
   SearchHistoryItemView = Backbone.View.extend({
-      tagName: "li",
-      template: _.template($('#searchhistory-item-template').html()),
-      events: {
-        "click a": "clicked"
-      },
+    tagName: "li",
+    template: _.template($('#searchhistory-item-template').html()),
+    events: {
+      "click a": "clicked"
+    },
 
-      clicked: function(e){
-        e.preventDefault();
-        Backbone.pubSub.trigger('searchHistorySelected', this.model);
-      },
+    clicked: function(e){
+      e.preventDefault();
+      Backbone.pubSub.trigger('searchHistorySelected', this.model);
+    },
 
-      render: function(){
-        var html = this.template(this.model.toJSON());
-        $(this.el).append(html);
-      }
+    render: function(){
+      var html = this.template(this.model.toJSON());
+      $(this.el).append(html);
+    }
   });
   var searchHistoryList = new SearchHistoryListView({collection: selectedMovieHistory});
 

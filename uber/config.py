@@ -11,6 +11,7 @@ class Config(object):
     GOOGLE_MAP_API_KEY = 'AIzaSyDujjdLWyq-NSiAWdkc0FAXgfDB8NXybLk'
     SF_DATA_API_BASE_URL = 'http://data.sfgov.org/resource/yitu-d5am.json'
     GOOGLE_MAPS_GEOCODE_URL = 'http://maps.googleapis.com/maps/api/geocode/json'
+    SESSION_ID = 'sessionid'
     DEBUG = False
     TESTING = False
 

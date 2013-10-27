@@ -16,6 +16,10 @@ class Movie(db.Document):
     def __unicode__(self):
         return self.title
 
+    @property
+    def str_id(self):
+        return str(self.id)
+
     def serialize(self):
         " Return a serialized version of the object. "
         return {
@@ -35,5 +39,5 @@ class Movie(db.Document):
 
 class SearchHistory(db.Document):
     " Allows us to track each user's search history. "
-    sessionid = db.StringField(unique=True)
+    sessionid = db.StringField(unique=True )
     movies = db.EmbeddedDocumentField('Movie')
