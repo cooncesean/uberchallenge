@@ -1,5 +1,5 @@
 import json
-from flask import render_template, Response
+from flask import abort, render_template, Response
 from flask.views import MethodView
 from uber import application
 from uber.models import Movie
@@ -30,20 +30,20 @@ class MovieAPI(MethodView):
 
         # Expose a single movie
         else:
-            m = Movie.objects.get(id=movie_id)
+            m = Movie.objects.get_or_404(id=movie_id)
             return Response(json.dumps(m.serialize()), mimetype='application/json')
 
     def post(self):
         " Create a new movie obj. "
-        raise NotImplementedError
+        abort(405)
 
     def delete(self, movie_id):
         " Delete a single movie. "
-        raise NotImplementedError
+        abort(405)
 
     def put(self, movie_id):
         " Update a single movie. "
-        raise NotImplementedError
+        abort(405)
 
 # Register the url patterns
 movie_api = MovieAPI.as_view('movie_api')
@@ -56,10 +56,10 @@ application.add_url_rule(
 application.add_url_rule(
     '/movies/<string:movie_id>/',
     view_func=movie_api,
-    methods=['GET', ]#'PUT', 'DELETE']
+    methods=['GET', 'PUT', 'DELETE']
 )
-# application.add_url_rule(
-#     '/movies/',
-#     view_func=movie_api,
-#     methods=['POST',]
-# )
+application.add_url_rule(
+    '/movies/',
+    view_func=movie_api,
+    methods=['POST',]
+)
