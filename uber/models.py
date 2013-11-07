@@ -19,6 +19,7 @@ class Movie(db.Document):
     def serialize(self):
         " Return a serialized version of the object. "
         return {
+            'id': str(self.id),
             'title': self.title,
             'addy_plus_geo': self._build_addy_plus_geo(),
             'geolocation': self.geolocation,
@@ -26,12 +27,24 @@ class Movie(db.Document):
         }
 
     def _build_addy_plus_geo(self):
-        " Return these values munged together. "
+        """
+        Couple the address and geolocation data together for each of the
+        movie's locations.
+
+        The result should be a list of dictionaries like so:
+            [{
+                'address': '<address_one_string>',
+                'geo': {
+                    'lat': <lat_one>,
+                    'lng': <lng_one>
+                }
+            }, ...]
+        """
         try:
-            return [(self.addresses[idx], val) for idx, val in enumerate(self.geolocation)]
+            return [{'address': self.addresses[idx], 'geo': val} for idx, val in enumerate(self.geolocation)]
         except:
             pass
-        return [(None, val) for val in self.geolocation]
+        return [{'address': None, 'geo': val} for idx, val in enumerate(self.geolocation)]
 
 class SearchHistory(db.Document):
     " Allows us to track each user's search history. "

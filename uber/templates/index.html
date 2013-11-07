@@ -59,48 +59,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js" type="text/javascript"></script>
     <script src="//maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAP_API_KEY }}&sensor=false" type="text/javascript" ></script>
-
-    <script>
-      // Bootstrap the default movie data
-      // Note: `addy_plus_geo` is a list of tuples like so:
-      //   [('901 Mission Street', {'lat': 37.76, 'lng': -122.42}), ....]
-      var Movie = Backbone.Model.extend({
-        defaults: function(){
-          return {
-            title: "",
-            location_count: 0,
-            addy_plus_geo: [],
-          };
-        }
-      });
-
-      var MovieList = Backbone.Collection.extend({
-        model: Movie
-      });
-      var allMovies = new MovieList();
-
-      // Instantiate a new MovieLocation object for each movie and
-      // add each to the movieLocations collection.
-      {% for db_movie in movies %}
-        var movie = new Movie({
-          'title': "{{ db_movie.title|safe }}",
-          'location_count': {{ db_movie.serialize().addy_plus_geo|count }},
-          'addy_plus_geo':[
-            {% for position_tuple in db_movie.serialize().addy_plus_geo %}
-              {
-                'address': "{{ position_tuple.0|safe }}",
-                'geo': {
-                  'lat': {{ position_tuple.1.lat }},
-                  'lng': {{ position_tuple.1.lng }},
-                }
-              },
-            {% endfor %}
-          ]
-        });
-        allMovies.add(movie);
-      {% endfor %}
-    </script>
-
     <script src="{{ url_for('static', filename='js/uber-backbone.js') }}" type="text/javascript"></script>
 
     <!-- Templates -->

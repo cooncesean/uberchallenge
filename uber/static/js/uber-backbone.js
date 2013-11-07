@@ -1,7 +1,4 @@
 $(function(){
-  // Note that the `Movie` model and `movies` collection
-  // are declared in `index.html` for bootstrapping purposes.
-
   // EVENT AGGREGATOR /////////////////////////////////////////////////////////
   //   Global Events:
   //    1. `autocompleteSelected`: Fired when a selection has been made from the
@@ -15,7 +12,41 @@ $(function(){
   /////////////////////////////////////////////////////////////////////////////
   Backbone.pubSub = _.extend({}, Backbone.Events);
 
-  // COLLECTIONS //////////////////////////////////////////////////////////////
+  // MODELS ///////////////////////////////////////////////////////////////////
+  // MOVIE MODEL //////////////////////////////////////////////////////////////
+  //   This core model represents a single (normalized) movie object.
+  //   Note: `addy_plus_geo` is a list of tuples like so:
+  //     [('901 Mission Street', {'lat': 37.76, 'lng': -122.42}), ....]
+  ////////////////////////////////////////////////////////////////////////////
+  var Movie = Backbone.Model.extend({
+    defaults: function(){
+      return {
+        title: "",
+        location_count: 0,
+        addy_plus_geo: [],
+      };
+    }
+  });
+
+  // COLLECTIONS /////////////////////////////////////////////////////////////
+  // MOVIE LIST COLLECTION ///////////////////////////////////////////////////
+  //   This collection fetches a list of all movies via an API call to the
+  //   appropriate endpoint (`/movies/`).
+  ////////////////////////////////////////////////////////////////////////////
+  var MovieList = Backbone.Collection.extend({
+    model: Movie,
+    url: '/movies/'
+  });
+
+  // Instantiate the collection and fetch the list of movies from the API
+  var allMovies = new MovieList();
+  allMovies.fetch();
+
+  // SELECTED MOVIE HISTORY COLLECTION ///////////////////////////////////////
+  //   This collection stores the user's selected autocomplete history. The
+  //   collection is appended to after the user selects a movie from the
+  //   autocompleter.
+  ////////////////////////////////////////////////////////////////////////////
   var SelectedMovieHistory = Backbone.Collection.extend({
     model: Movie
   });
@@ -32,7 +63,13 @@ $(function(){
   var AutoCompleteInputView = Backbone.View.extend({
     el: $('#autocomplete-input'),
 
+    // Listen to the `allMovies.reset` event and use that to populate the autocompleter
     initialize: function(){
+      this.collection.bind('add', this.populateAutocompleter, this);
+    },
+
+    // Populate the autocompleter w/ the `allMovies` collection
+    populateAutocompleter: function(movie){
       // Wire up the autocompleter dom element `this.el`
       // Note: The jqueryui.autcomplete instance fires an `autocompleteselect`
       //       event when a result is selected. The list passed to the `source`
@@ -58,7 +95,8 @@ $(function(){
       });
     },
   });
-  var autcompleteInput = new AutoCompleteInputView;
+  // Bind the `allMovies` collection to this view
+  var autcompleteInput = new AutoCompleteInputView({collection: allMovies});
 
   // MAPVIEW /////////////////////////////////////////////////////////////////
   //   Manages UI around the single Google Map binding.
@@ -73,6 +111,9 @@ $(function(){
       Backbone.pubSub.on('autocompleteSelected', this.updateMap, this);
       Backbone.pubSub.on('searchHistorySelected', this.updateMap, this);
       Backbone.pubSub.on('highlightMapMarker', this.highlightMapMarker, this);
+
+      // Listen to the `allMovies.add` event and plot markers for each movie on the map
+      this.collection.bind('add', this.createMarkersForMovie, this);
 
       // Google map config
       var mapOptions = {
@@ -91,12 +132,11 @@ $(function(){
       });
     },
 
-    // Create a new markers on the map for each lat/lng in `movie` objects
+    // Create a new markers on the map for each lat/lng in `movie's`
     // `addy_plus_geo` list.
     createMarkersForMovie: function(movie){
       var self = this;
       $.each(movie.get('addy_plus_geo'), function(){
-
         // Create the marker object
         marker = new google.maps.Marker({
           map: self.googleMap,
@@ -161,7 +201,8 @@ $(function(){
       });
     }
   });
-  var mapView = new MapView;
+  // Instantiate the MapView and pass the `allMovies` collection to it
+  var mapView = new MapView({collection: allMovies});
 
   // MOVIE INFO  //////////////////////////////////////////////////////////////
   //   Manages UI regarding the movie info and locations on the sidebar (under
